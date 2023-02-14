@@ -11,7 +11,7 @@ mvn clean package
 The JAR will be a runnable Java file. It can be executed like this:
 
 ```
-java -jar target/client.jar message 127.0.0.1 11111 Hello
+java -jar target/client.jar message 127.0.0.1 8080 Hello
 ```
 
 To show other commands:
