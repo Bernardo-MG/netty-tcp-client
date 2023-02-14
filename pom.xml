@@ -22,7 +22,7 @@
    <version>0.0.1-SNAPSHOT</version>
    <packaging>jar</packaging>
 
-   <name>Netty TCP Server Example</name>
+   <name>Netty TCP Client Example</name>
    <description>An example setting up a Netty TCP client.</description>
    <url>https://github.com/bernardo-mg/netty-tcp-server</url>
    <inceptionYear>2023</inceptionYear>
