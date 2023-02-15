@@ -23,6 +23,8 @@ public final class NettyClient implements Client {
 
     private final EventLoopGroup                    eventLoopGroup = new NioEventLoopGroup();
 
+    private Boolean                                 failed         = false;
+
     private final String                            host;
 
     private final NettyChannelInboundHandler        inboundHandler;
@@ -53,65 +55,12 @@ public final class NettyClient implements Client {
     }
 
     @Override
-    public final void send(final String message) {
-
-        // Prints the final result
-        writer.println();
-        writer.println("------------");
-        writer.printf("Sending message %s to %s:%d", message, host, port);
-        writer.println();
-        writer.println("------------");
-
-        // check the connection is successful
-        if (channelFuture.isSuccess()) {
-            // send message to server
-            channelFuture.channel()
-                .writeAndFlush(Unpooled.wrappedBuffer(message.getBytes()))
-                .addListener(future -> {
-                    if (future.isSuccess()) {
-                        writer.printf("Sent message: %s", message);
-                        writer.println();
-                    } else {
-                        writer.println("Failed sending message");
-                    }
-                })
-                .addListener(future -> sent = true);
-
-            // while(!channelFuture.isDone());
-            // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
-            while ((!sent) || (!inboundHandler.getReceived())) {
-                // Wait until done
-            }
-
-            if (inboundHandler.getResponse()
-                .isEmpty()) {
-                writer.println("Received no response");
-            } else {
-                writer.printf("Received Message: %s", inboundHandler.getResponse()
-                    .get());
-                writer.println();
-            }
-
-            log.debug("Successful request");
-        } else {
-            log.warn("Request failure");
-        }
-    }
-
-    @Override
-    public final void shutdown() {
-        // timeout before closing client
-        // try {
-        // Thread.sleep(5000);
-        // } catch (final InterruptedException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
+    public final void close() {
         eventLoopGroup.shutdownGracefully();
     }
 
     @Override
-    public final void startup() throws InterruptedException {
+    public final void connect() throws InterruptedException {
         final Bootstrap b;
 
         b = new Bootstrap();
@@ -125,6 +74,62 @@ public final class NettyClient implements Client {
 
         if (channelFuture.isSuccess()) {
             log.debug("Connected correctly");
+        }
+    }
+
+    @Override
+    public final void send(final String message) {
+
+        log.debug("Sending message {}", message);
+
+        // Prints the final result
+        writer.println();
+        writer.println("------------");
+        writer.printf("Sending message %s to %s:%d", message, host, port);
+        writer.println();
+        writer.println("------------");
+
+        // check the connection is successful
+        if (channelFuture.isSuccess()) {
+            log.debug("Starting request");
+
+            // send message to server
+            channelFuture.channel()
+                .writeAndFlush(Unpooled.wrappedBuffer(message.getBytes()))
+                .addListener(future -> {
+                    if (future.isSuccess()) {
+                        log.debug("Successful request future");
+                        writer.printf("Sent message: %s", message);
+                        writer.println();
+                    } else {
+                        log.debug("Failed request future");
+                        writer.println("Failed sending message");
+                        failed = true;
+                    }
+                })
+                .addListener(future -> sent = true);
+
+            // while(!channelFuture.isDone());
+            // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
+            log.debug("Waiting until the request and response are finished");
+            while ((!failed) && ((!sent) || (!inboundHandler.getReceived()))) {
+                // Wait until done
+                log.trace("Waiting. Sent: {}. Received: {}", sent, inboundHandler.getReceived());
+            }
+            log.debug("Finished waiting for response");
+
+            if (inboundHandler.getResponse()
+                .isEmpty()) {
+                writer.println("Received no response");
+            } else {
+                writer.printf("Received Message: %s", inboundHandler.getResponse()
+                    .get());
+                writer.println();
+            }
+
+            log.debug("Successful request");
+        } else {
+            log.warn("Request failure");
         }
     }
 
