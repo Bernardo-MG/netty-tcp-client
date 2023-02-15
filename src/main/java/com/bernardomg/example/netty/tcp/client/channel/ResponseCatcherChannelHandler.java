@@ -69,6 +69,8 @@ public final class ResponseCatcherChannelHandler extends SimpleChannelInboundHan
         log.debug("Received message {}", message);
 
         responseListener.accept(message);
+
+        super.channelRead(ctx, msg);
     }
 
     @Override
