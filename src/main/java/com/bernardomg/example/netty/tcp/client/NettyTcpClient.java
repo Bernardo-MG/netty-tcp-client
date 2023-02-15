@@ -117,7 +117,7 @@ public final class NettyTcpClient implements Client {
         }
 
         if (channelFuture.isSuccess()) {
-            log.debug("Connected correctly");
+            log.debug("Connected correctly to {}:{}", host, port);
         }
     }
 
