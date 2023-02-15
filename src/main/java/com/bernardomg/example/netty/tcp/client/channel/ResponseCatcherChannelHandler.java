@@ -2,22 +2,22 @@
 package com.bernardomg.example.netty.tcp.client.channel;
 
 import java.nio.charset.Charset;
-import java.util.Optional;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class ResponseCatcherChannelHandler extends SimpleChannelInboundHandler<Object> {
 
-    private Boolean          received = false;
+    private final Consumer<String> responseListener;
 
-    private Optional<String> response = Optional.empty();
-
-    public ResponseCatcherChannelHandler() {
+    public ResponseCatcherChannelHandler(final Consumer<String> listener) {
         super();
+
+        responseListener = listener;
     }
 
     @Override
@@ -27,11 +27,9 @@ public final class ResponseCatcherChannelHandler extends SimpleChannelInboundHan
 
         byteBuf = (ByteBuf) msg;
         message = byteBuf.toString(Charset.defaultCharset());
-        response = Optional.ofNullable(message);
+        log.debug("Received message {}", message);
 
-        received = true;
-
-        log.debug("Received message {}", response.get());
+        responseListener.accept(message);
     }
 
     @Override
@@ -39,14 +37,6 @@ public final class ResponseCatcherChannelHandler extends SimpleChannelInboundHan
         super.exceptionCaught(ctx, cause);
 
         log.error(cause.getLocalizedMessage(), cause);
-    }
-
-    public final Boolean getReceived() {
-        return received;
-    }
-
-    public final Optional<String> getResponse() {
-        return response;
     }
 
 }

@@ -2,6 +2,7 @@
 package com.bernardomg.example.netty.tcp.client;
 
 import java.io.PrintWriter;
+import java.util.Optional;
 
 import com.bernardomg.example.netty.tcp.client.channel.ResponseCatcherChannelInitializer;
 
@@ -35,6 +36,10 @@ public final class NettyTcpClient implements Client {
 
     private final Integer                           port;
 
+    private Boolean                                 received       = false;
+
+    private Optional<String>                        response       = Optional.empty();
+
     private Boolean                                 sent           = false;
 
     private final PrintWriter                       writer;
@@ -46,7 +51,7 @@ public final class NettyTcpClient implements Client {
         host = hst;
         writer = wrt;
 
-        channelInitializer = new ResponseCatcherChannelInitializer();
+        channelInitializer = new ResponseCatcherChannelInitializer(this::handleResponse);
     }
 
     @Override
@@ -113,18 +118,16 @@ public final class NettyTcpClient implements Client {
             // while(!channelFuture.isDone());
             // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
             log.trace("Waiting until the request and response are finished");
-            while ((!failed) && ((!sent) || (!channelInitializer.getReceived()))) {
+            while ((!failed) && ((!sent) || (!received))) {
                 // Wait until done
-                log.trace("Waiting. Sent: {}. Received: {}", sent, channelInitializer.getReceived());
+                log.trace("Waiting. Sent: {}. Received: {}", sent, received);
             }
             log.trace("Finished waiting for response");
 
-            if (channelInitializer.getResponse()
-                .isEmpty()) {
+            if (response.isEmpty()) {
                 writer.println("Received no response");
             } else {
-                writer.printf("Received Message: %s", channelInitializer.getResponse()
-                    .get());
+                writer.printf("Received response: %s", response.get());
                 writer.println();
             }
 
@@ -132,6 +135,11 @@ public final class NettyTcpClient implements Client {
         } else {
             log.warn("Request failure");
         }
+    }
+
+    private final void handleResponse(final String rsp) {
+        response = Optional.ofNullable(rsp);
+        received = true;
     }
 
 }

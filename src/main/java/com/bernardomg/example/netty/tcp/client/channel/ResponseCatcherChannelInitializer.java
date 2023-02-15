@@ -1,25 +1,18 @@
 
 package com.bernardomg.example.netty.tcp.client.channel;
 
-import java.util.Optional;
-
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer;
 
 public final class ResponseCatcherChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final ResponseCatcherChannelHandler inboundHandler = new ResponseCatcherChannelHandler();
+    private final ResponseCatcherChannelHandler inboundHandler;
 
-    public ResponseCatcherChannelInitializer() {
+    public ResponseCatcherChannelInitializer(final Consumer<String> listener) {
         super();
-    }
 
-    public final Boolean getReceived() {
-        return inboundHandler.getReceived();
-    }
-
-    public final Optional<String> getResponse() {
-        return inboundHandler.getResponse();
+        inboundHandler = new ResponseCatcherChannelHandler(listener);
     }
 
     @Override
@@ -27,4 +20,5 @@ public final class ResponseCatcherChannelInitializer extends ChannelInitializer<
         ch.pipeline()
             .addLast(inboundHandler);
     }
+
 }

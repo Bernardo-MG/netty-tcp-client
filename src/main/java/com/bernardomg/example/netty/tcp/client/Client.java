@@ -39,8 +39,6 @@ public interface Client {
 
     /**
      * Starts a connection.
-     *
-     * @throws InterruptedException
      */
     public void connect();
 
