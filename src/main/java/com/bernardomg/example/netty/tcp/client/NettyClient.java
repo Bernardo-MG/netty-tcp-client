@@ -54,13 +54,6 @@ public final class NettyClient implements Client {
 
     @Override
     public final void close() {
-        // timeout before closing client
-        // try {
-        // Thread.sleep(5000);
-        // } catch (final InterruptedException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
         eventLoopGroup.shutdownGracefully();
     }
 
