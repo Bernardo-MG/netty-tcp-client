@@ -25,10 +25,13 @@
 package com.bernardomg.example.netty.tcp.client.channel;
 
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer;
+import io.netty.handler.codec.string.StringDecoder;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Initializes the channel with a response catcher.
@@ -36,20 +39,15 @@ import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Cons
  * @author bernardo.martinezg
  *
  */
-public final class ResponseCatcherChannelInitializer extends ChannelInitializer<SocketChannel> {
+@Slf4j
+public final class ResponseListenerChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     /**
      * Response listener. This will receive any response from the channel.
      */
-    private final Consumer<String> responseListener;
+    private final BiConsumer<ChannelHandlerContext, String> responseListener;
 
-    /**
-     * Constructs a channel initializer which adds a response catcher.
-     *
-     * @param listener
-     *            Listener to watch for channel responses
-     */
-    public ResponseCatcherChannelInitializer(final Consumer<String> listener) {
+    public ResponseListenerChannelInitializer(final BiConsumer<ChannelHandlerContext, String> listener) {
         super();
 
         responseListener = Objects.requireNonNull(listener);
@@ -57,12 +55,17 @@ public final class ResponseCatcherChannelInitializer extends ChannelInitializer<
 
     @Override
     protected final void initChannel(final SocketChannel ch) throws Exception {
-        final ResponseCatcherChannelHandler responseCatcher;
+        final ResponseListenerChannelHandler responseCatcher;
 
-        responseCatcher = new ResponseCatcherChannelHandler(responseListener);
+        responseCatcher = new ResponseListenerChannelHandler(responseListener);
+
+        log.debug("Initializing channel");
 
         ch.pipeline()
+            .addLast("decoder", new StringDecoder())
             .addLast(responseCatcher);
+
+        log.debug("Initialized channel");
     }
 
 }

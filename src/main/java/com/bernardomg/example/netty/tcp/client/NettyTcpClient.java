@@ -28,11 +28,12 @@ import java.io.PrintWriter;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.bernardomg.example.netty.tcp.client.channel.ResponseCatcherChannelInitializer;
+import com.bernardomg.example.netty.tcp.client.channel.ResponseListenerChannelInitializer;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -101,7 +102,7 @@ public final class NettyTcpClient implements Client {
         b.option(ChannelOption.SO_KEEPALIVE, true);
 
         // Sets channel initializer which listens for responses
-        b.handler(new ResponseCatcherChannelInitializer(this::handleResponse));
+        b.handler(new ResponseListenerChannelInitializer(this::handleResponse));
 
         try {
             log.debug("Connecting to {}:{}", host, port);
@@ -171,13 +172,13 @@ public final class NettyTcpClient implements Client {
     }
 
     /**
-     * Channel response event listener. Will be sent to the response catcher, and will receive any response.
+     * Channel response event listener. Will receive any response sent by the server.
      *
      * @param rsp
      *            response received
      */
-    private final void handleResponse(final String rsp) {
-        response = Optional.ofNullable(rsp);
+    private final void handleResponse(final ChannelHandlerContext ctx, final String msg) {
+        response = Optional.ofNullable(msg);
         received = true;
     }
 
