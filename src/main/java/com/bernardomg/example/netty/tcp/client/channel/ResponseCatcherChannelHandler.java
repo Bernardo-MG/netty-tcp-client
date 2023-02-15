@@ -1,5 +1,5 @@
 
-package com.bernardomg.example.netty.tcp.client;
+package com.bernardomg.example.netty.tcp.client.channel;
 
 import java.nio.charset.Charset;
 import java.util.Optional;
@@ -10,13 +10,13 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public final class NettyChannelInboundHandler extends SimpleChannelInboundHandler<Object> {
+public final class ResponseCatcherChannelHandler extends SimpleChannelInboundHandler<Object> {
 
     private Boolean          received = false;
 
     private Optional<String> response = Optional.empty();
 
-    public NettyChannelInboundHandler() {
+    public ResponseCatcherChannelHandler() {
         super();
     }
 

@@ -3,23 +3,29 @@ package com.bernardomg.example.netty.tcp.client;
 
 import java.io.PrintWriter;
 
+import com.bernardomg.example.netty.tcp.client.channel.ResponseCatcherChannelInitializer;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Netty based TCP client.
+ *
+ * @author bernardo.martinezg
+ *
+ */
 @Slf4j
-public final class NettyClient implements Client {
+public final class NettyTcpClient implements Client {
 
     private ChannelFuture                           channelFuture;
 
-    private final ChannelInitializer<SocketChannel> channelInitializer;
+    private final ResponseCatcherChannelInitializer channelInitializer;
 
     private final EventLoopGroup                    eventLoopGroup = new NioEventLoopGroup();
 
@@ -27,31 +33,20 @@ public final class NettyClient implements Client {
 
     private final String                            host;
 
-    private final NettyChannelInboundHandler        inboundHandler;
-
     private final Integer                           port;
 
     private Boolean                                 sent           = false;
 
     private final PrintWriter                       writer;
 
-    public NettyClient(final String hst, final Integer prt, final PrintWriter wrt) {
+    public NettyTcpClient(final String hst, final Integer prt, final PrintWriter wrt) {
         super();
 
         port = prt;
         host = hst;
         writer = wrt;
 
-        inboundHandler = new NettyChannelInboundHandler();
-        channelInitializer = new ChannelInitializer<>() {
-
-            @Override
-            protected void initChannel(final SocketChannel socketChannel) throws Exception {
-                socketChannel.pipeline()
-                    .addLast(inboundHandler);
-            }
-
-        };
+        channelInitializer = new ResponseCatcherChannelInitializer();
     }
 
     @Override
@@ -60,7 +55,7 @@ public final class NettyClient implements Client {
     }
 
     @Override
-    public final void connect() throws InterruptedException {
+    public final void connect() {
         final Bootstrap b;
 
         b = new Bootstrap();
@@ -69,8 +64,14 @@ public final class NettyClient implements Client {
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.handler(channelInitializer);
 
-        channelFuture = b.connect(host, port)
-            .sync();
+        try {
+            log.debug("Connecting to {}:{}", host, port);
+            channelFuture = b.connect(host, port)
+                .sync();
+        } catch (final InterruptedException e) {
+            log.error(e.getLocalizedMessage(), e);
+            throw new RuntimeException(e);
+        }
 
         if (channelFuture.isSuccess()) {
             log.debug("Connected correctly");
@@ -111,18 +112,18 @@ public final class NettyClient implements Client {
 
             // while(!channelFuture.isDone());
             // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
-            log.debug("Waiting until the request and response are finished");
-            while ((!failed) && ((!sent) || (!inboundHandler.getReceived()))) {
+            log.trace("Waiting until the request and response are finished");
+            while ((!failed) && ((!sent) || (!channelInitializer.getReceived()))) {
                 // Wait until done
-                log.trace("Waiting. Sent: {}. Received: {}", sent, inboundHandler.getReceived());
+                log.trace("Waiting. Sent: {}. Received: {}", sent, channelInitializer.getReceived());
             }
-            log.debug("Finished waiting for response");
+            log.trace("Finished waiting for response");
 
-            if (inboundHandler.getResponse()
+            if (channelInitializer.getResponse()
                 .isEmpty()) {
                 writer.println("Received no response");
             } else {
-                writer.printf("Received Message: %s", inboundHandler.getResponse()
+                writer.printf("Received Message: %s", channelInitializer.getResponse()
                     .get());
                 writer.println();
             }

@@ -20,7 +20,7 @@ import java.io.PrintWriter;
 
 import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
 import com.bernardomg.example.netty.tcp.client.Client;
-import com.bernardomg.example.netty.tcp.client.NettyClient;
+import com.bernardomg.example.netty.tcp.client.NettyTcpClient;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -69,7 +69,7 @@ public final class SendMessageCommand implements Runnable {
 
         try {
             // Create client
-            client = new NettyClient(host, port, writer);
+            client = new NettyTcpClient(host, port, writer);
             client.connect();
 
             // Send message
