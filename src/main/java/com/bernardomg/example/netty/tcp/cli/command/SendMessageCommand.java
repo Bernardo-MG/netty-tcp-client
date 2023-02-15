@@ -22,9 +22,6 @@ import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
 import com.bernardomg.example.netty.tcp.client.Client;
 import com.bernardomg.example.netty.tcp.client.NettyClient;
 
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
@@ -38,7 +35,6 @@ import picocli.CommandLine.Spec;
  */
 @Command(name = "message", description = "Sends a TCP message", mixinStandardHelpOptions = true,
         versionProvider = ManifestVersionProvider.class)
-@Slf4j
 public final class SendMessageCommand implements Runnable {
 
     @Parameters(index = "0", description = "Server host", paramLabel = "HOST")
@@ -65,9 +61,8 @@ public final class SendMessageCommand implements Runnable {
 
     @Override
     public final void run() {
-        final PrintWriter   writer;
-        final Client        client;
-        final ChannelFuture channelFuture;
+        final PrintWriter writer;
+        final Client      client;
 
         writer = spec.commandLine()
             .getOut();
@@ -80,32 +75,14 @@ public final class SendMessageCommand implements Runnable {
         writer.println("------------");
 
         try {
-            // Create a client
+            // Create client
             client = new NettyClient(host, port, writer);
-            channelFuture = client.startup();
+            client.startup();
 
-            // wait for 5 seconds
-            Thread.sleep(5000);
-            // check the connection is successful
-            if (channelFuture.isSuccess()) {
-                log.debug("Successful request");
+            // Send message
+            client.send(message);
 
-                // send message to server
-                channelFuture.channel()
-                    .writeAndFlush(Unpooled.wrappedBuffer(message.getBytes()))
-                    .addListener(future -> {
-                        if (future.isSuccess()) {
-                            writer.printf("Sent message: %s", message);
-                            writer.println();
-                        } else {
-                            writer.println("Failed sending message");
-                        }
-                    });
-            }
-            // timeout before closing client
-            Thread.sleep(5000);
-
-            // close the client
+            // close client
             client.shutdown();
         } catch (final Exception e) {
             e.printStackTrace();

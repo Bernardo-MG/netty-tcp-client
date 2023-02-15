@@ -4,6 +4,7 @@ package com.bernardomg.example.netty.tcp.client;
 import java.io.PrintWriter;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -11,8 +12,12 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public final class NettyClient implements Client {
+
+    private ChannelFuture                           channelFuture;
 
     private final ChannelInitializer<SocketChannel> channelInitializer;
 
@@ -22,11 +27,14 @@ public final class NettyClient implements Client {
 
     private final Integer                           port;
 
-    public NettyClient(final String hst, final Integer prt, final PrintWriter writer) {
+    private final PrintWriter                       writer;
+
+    public NettyClient(final String hst, final Integer prt, final PrintWriter wrt) {
         super();
 
         port = prt;
         host = hst;
+        writer = wrt;
 
         channelInitializer = new ChannelInitializer<>() {
 
@@ -39,22 +47,40 @@ public final class NettyClient implements Client {
         };
     }
 
-    /**
-     * Shutdown a client
-     */
+    @Override
+    public void send(final String message) {
+        // check the connection is successful
+        if (channelFuture.isSuccess()) {
+            log.debug("Successful request");
+
+            // send message to server
+            channelFuture.channel()
+                .writeAndFlush(Unpooled.wrappedBuffer(message.getBytes()))
+                .addListener(future -> {
+                    if (future.isSuccess()) {
+                        writer.printf("Sent message: %s", message);
+                        writer.println();
+                    } else {
+                        writer.println("Failed sending message");
+                    }
+                });
+        }
+    }
+
     @Override
     public final void shutdown() {
+        // timeout before closing client
+        try {
+            Thread.sleep(5000);
+        } catch (final InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         eventLoopGroup.shutdownGracefully();
     }
 
-    /**
-     * Startup the client
-     *
-     * @return {@link ChannelFuture}
-     * @throws InterruptedException
-     */
     @Override
-    public final ChannelFuture startup() throws InterruptedException {
+    public final void startup() throws InterruptedException {
         final Bootstrap b;
 
         b = new Bootstrap();
@@ -63,8 +89,11 @@ public final class NettyClient implements Client {
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.handler(channelInitializer);
 
-        return b.connect(host, port)
+        channelFuture = b.connect(host, port)
             .sync();
+
+        // wait for 5 seconds
+        Thread.sleep(5000);
     }
 
 }
