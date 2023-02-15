@@ -21,13 +21,15 @@ public final class NettyClient implements Client {
 
     private final ChannelInitializer<SocketChannel> channelInitializer;
 
-    private Boolean                                 done           = false;
-
     private final EventLoopGroup                    eventLoopGroup = new NioEventLoopGroup();
 
     private final String                            host;
 
+    private final NettyChannelInboundHandler        inboundHandler;
+
     private final Integer                           port;
+
+    private Boolean                                 sent           = false;
 
     private final PrintWriter                       writer;
 
@@ -38,19 +40,20 @@ public final class NettyClient implements Client {
         host = hst;
         writer = wrt;
 
+        inboundHandler = new NettyChannelInboundHandler(writer);
         channelInitializer = new ChannelInitializer<>() {
 
             @Override
             protected void initChannel(final SocketChannel socketChannel) throws Exception {
                 socketChannel.pipeline()
-                    .addLast(new NettyChannelInboundHandler(writer));
+                    .addLast(inboundHandler);
             }
 
         };
     }
 
     @Override
-    public void send(final String message) {
+    public final void send(final String message) {
 
         // Prints the final result
         writer.println();
@@ -61,8 +64,6 @@ public final class NettyClient implements Client {
 
         // check the connection is successful
         if (channelFuture.isSuccess()) {
-            log.debug("Successful request");
-
             // send message to server
             channelFuture.channel()
                 .writeAndFlush(Unpooled.wrappedBuffer(message.getBytes()))
@@ -74,13 +75,14 @@ public final class NettyClient implements Client {
                         writer.println("Failed sending message");
                     }
                 })
-                .addListener(future -> done = true);
+                .addListener(future -> sent = true);
 
             // while(!channelFuture.isDone());
             // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
-            while (!done) {
+            while ((!sent) || (!inboundHandler.getReceived())) {
                 // Wait until done
             }
+            log.debug("Successful request");
         } else {
             log.warn("Request failure");
         }
@@ -89,12 +91,12 @@ public final class NettyClient implements Client {
     @Override
     public final void shutdown() {
         // timeout before closing client
-        try {
-            Thread.sleep(5000);
-        } catch (final InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        // try {
+        // Thread.sleep(5000);
+        // } catch (final InterruptedException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
         eventLoopGroup.shutdownGracefully();
     }
 
@@ -110,6 +112,10 @@ public final class NettyClient implements Client {
 
         channelFuture = b.connect(host, port)
             .sync();
+
+        if (channelFuture.isSuccess()) {
+            log.debug("Connected correctly");
+        }
     }
 
 }

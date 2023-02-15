@@ -10,6 +10,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 public final class NettyChannelInboundHandler extends SimpleChannelInboundHandler<Object> {
 
+    private Boolean           received = false;
+
     private final PrintWriter writer;
 
     public NettyChannelInboundHandler(final PrintWriter wrt) {
@@ -28,6 +30,12 @@ public final class NettyChannelInboundHandler extends SimpleChannelInboundHandle
 
         writer.printf("Received Message: %s", message);
         writer.println();
+
+        received = true;
+    }
+
+    public Boolean getReceived() {
+        return received;
     }
 
 }
