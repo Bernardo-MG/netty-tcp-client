@@ -45,12 +45,21 @@ import picocli.CommandLine.Spec;
         versionProvider = ManifestVersionProvider.class)
 public final class SendMessageCommand implements Runnable {
 
+    /**
+     * Server host.
+     */
     @Parameters(index = "0", description = "Server host", paramLabel = "HOST")
     private String      host;
 
+    /**
+     * Message to send.
+     */
     @Parameters(index = "2", description = "Message to send", paramLabel = "MSG")
     private String      message;
 
+    /**
+     * Server port.
+     */
     @Parameters(index = "1", description = "Server port", paramLabel = "PORT")
     private Integer     port;
 

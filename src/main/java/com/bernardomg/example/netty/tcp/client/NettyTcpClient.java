@@ -25,6 +25,7 @@
 package com.bernardomg.example.netty.tcp.client;
 
 import java.io.PrintWriter;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.bernardomg.example.netty.tcp.client.channel.ResponseCatcherChannelInitializer;
@@ -47,16 +48,24 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class NettyTcpClient implements Client {
 
+    /**
+     * Future for the main channel. Allows sending messages and reacting to responses.
+     */
     private ChannelFuture                           channelFuture;
 
-    private final ResponseCatcherChannelInitializer channelInitializer;
 
     private final EventLoopGroup                    eventLoopGroup = new NioEventLoopGroup();
 
     private Boolean                                 failed         = false;
 
+    /**
+     * Host for the server to which this client will connect.
+     */
     private final String                            host;
 
+    /**
+     * Port for the server to which this client will connect.
+     */
     private final Integer                           port;
 
     private Boolean                                 received       = false;
@@ -65,16 +74,17 @@ public final class NettyTcpClient implements Client {
 
     private Boolean                                 sent           = false;
 
+    /**
+     * CLI writer, to print console messages.
+     */
     private final PrintWriter                       writer;
 
     public NettyTcpClient(final String hst, final Integer prt, final PrintWriter wrt) {
         super();
 
-        port = prt;
-        host = hst;
-        writer = wrt;
-
-        channelInitializer = new ResponseCatcherChannelInitializer(this::handleResponse);
+        port = Objects.requireNonNull(prt);
+        host = Objects.requireNonNull(hst);
+        writer = Objects.requireNonNull(wrt);
     }
 
     @Override
@@ -90,7 +100,9 @@ public final class NettyTcpClient implements Client {
         b.group(eventLoopGroup);
         b.channel(NioSocketChannel.class);
         b.option(ChannelOption.SO_KEEPALIVE, true);
-        b.handler(channelInitializer);
+        
+        // Sets channel initializer which listens for responses
+        b.handler(new ResponseCatcherChannelInitializer(this::handleResponse));
 
         try {
             log.debug("Connecting to {}:{}", host, port);
