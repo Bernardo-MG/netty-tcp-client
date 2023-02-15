@@ -70,13 +70,13 @@ public final class SendMessageCommand implements Runnable {
         try {
             // Create client
             client = new NettyClient(host, port, writer);
-            client.startup();
+            client.connect();
 
             // Send message
             client.send(message);
 
             // close client
-            client.shutdown();
+            client.close();
         } catch (final Exception e) {
             e.printStackTrace();
             writer.println("Error on startup");

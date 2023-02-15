@@ -30,6 +30,8 @@ public final class NettyChannelInboundHandler extends SimpleChannelInboundHandle
         response = Optional.ofNullable(message);
 
         received = true;
+
+        log.debug("Received message {}", response.get());
     }
 
     @Override
