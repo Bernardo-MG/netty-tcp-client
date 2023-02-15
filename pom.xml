@@ -18,13 +18,13 @@
    <!-- ********************************************** -->
 
    <groupId>com.bernardomg.example</groupId>
-   <artifactId>netty-tcp-client</artifactId>
+   <artifactId>netty-tcp-client-example</artifactId>
    <version>0.0.1-SNAPSHOT</version>
    <packaging>jar</packaging>
 
    <name>Netty TCP Client Example</name>
    <description>An example setting up a Netty TCP client.</description>
-   <url>https://github.com/bernardo-mg/netty-tcp-client</url>
+   <url>https://github.com/bernardo-mg/netty-tcp-client-example</url>
    <inceptionYear>2023</inceptionYear>
 
    <licenses>
@@ -65,20 +65,20 @@
    <!-- ********************************************** -->
 
    <scm>
-      <connection>scm:git:https://github.com/bernardo-mg/netty-tcp-client.git</connection>
-      <developerConnection>scm:git:https://github.com/bernardo-mg/netty-tcp-client.git</developerConnection>
+      <connection>scm:git:https://github.com/bernardo-mg/netty-tcp-client-example.git</connection>
+      <developerConnection>scm:git:https://github.com/bernardo-mg/netty-tcp-client-example.git</developerConnection>
       <tag>head</tag>
-      <url>https://www.github.com/bernardo-mg/netty-tcp-client</url>
+      <url>https://www.github.com/bernardo-mg/netty-tcp-client-example</url>
    </scm>
 
    <issueManagement>
       <system>GitHub</system>
-      <url>https://www.github.com/bernardo-mg/netty-tcp-client/issues</url>
+      <url>https://www.github.com/bernardo-mg/netty-tcp-client-example/issues</url>
    </issueManagement>
 
    <ciManagement>
       <system>Github</system>
-      <url>https://www.github.com/bernardo-mg/netty-tcp-client/actions</url>
+      <url>https://www.github.com/bernardo-mg/netty-tcp-client-example/actions</url>
       <notifiers />
    </ciManagement>
 
