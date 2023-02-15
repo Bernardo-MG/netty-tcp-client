@@ -36,7 +36,7 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 /**
- * Dice gatherer command. Receives an expression, gets all the dice sets on it and prints the result on screen.
+ * Send message command. Will send a message to the server through TCP.
  *
  * @author Bernardo Mart&iacute;nez Garrido
  *
