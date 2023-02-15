@@ -25,6 +25,7 @@
 package com.bernardomg.example.netty.tcp.client.channel;
 
 import java.nio.charset.Charset;
+import java.util.Objects;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,15 +33,30 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Response catcher. Will send any message to the contained listener.
+ *
+ * @author bernardo.martinezg
+ *
+ */
 @Slf4j
 public final class ResponseCatcherChannelHandler extends SimpleChannelInboundHandler<Object> {
 
+    /**
+     * Response listener. This will receive any response from the channel.
+     */
     private final Consumer<String> responseListener;
 
+    /**
+     * Constructs a channel handler which will send any response to the listener.
+     *
+     * @param listener
+     *            Listener to watch for channel responses
+     */
     public ResponseCatcherChannelHandler(final Consumer<String> listener) {
         super();
 
-        responseListener = listener;
+        responseListener = Objects.requireNonNull(listener);
     }
 
     @Override

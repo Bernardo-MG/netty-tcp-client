@@ -28,20 +28,35 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer;
 
+/**
+ * Initializes the channel with a response catcher.
+ *
+ * @author bernardo.martinezg
+ *
+ */
 public final class ResponseCatcherChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final ResponseCatcherChannelHandler inboundHandler;
+    /**
+     * Channel response catcher. Will send any response to the listener.
+     */
+    private final ResponseCatcherChannelHandler responseCatcher;
 
+    /**
+     * Constructs a channel initializer which adds a response catcher.
+     *
+     * @param listener
+     *            Listener to watch for channel responses
+     */
     public ResponseCatcherChannelInitializer(final Consumer<String> listener) {
         super();
 
-        inboundHandler = new ResponseCatcherChannelHandler(listener);
+        responseCatcher = new ResponseCatcherChannelHandler(listener);
     }
 
     @Override
     protected final void initChannel(final SocketChannel ch) throws Exception {
         ch.pipeline()
-            .addLast(inboundHandler);
+            .addLast(responseCatcher);
     }
 
 }

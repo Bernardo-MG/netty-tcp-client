@@ -108,7 +108,6 @@ public final class NettyTcpClient implements Client {
 
     @Override
     public final void send(final String message) {
-
         log.debug("Sending message {}", message);
 
         // Prints the final result
@@ -160,6 +159,12 @@ public final class NettyTcpClient implements Client {
         }
     }
 
+    /**
+     * Channel response event listener. Will be sent to the response catcher, and will receive any response.
+     *
+     * @param rsp
+     *            response received
+     */
     private final void handleResponse(final String rsp) {
         response = Optional.ofNullable(rsp);
         received = true;
