@@ -153,7 +153,7 @@ public final class NettyTcpClient implements Client {
             log.trace("Waiting until the request and response are finished");
             while ((!failed) && ((!sent) || (!received))) {
                 // Wait until done
-                log.trace("Waiting. Sent: {}. Received: {}", sent, received);
+                log.trace("Waiting. Sent: {}. Received: {}. Failed: {}", sent, received, failed);
             }
             log.trace("Finished waiting for response");
 
