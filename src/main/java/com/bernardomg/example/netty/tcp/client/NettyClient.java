@@ -118,6 +118,7 @@ public final class NettyClient implements Client {
             log.debug("Waiting until the request and response are finished");
             while ((!sent) || (!inboundHandler.getReceived())) {
                 // Wait until done
+                log.trace("Waiting. Sent: {}. Received: {}", sent,inboundHandler.getReceived());
             }
             log.debug("Finished waiting for response");
 
