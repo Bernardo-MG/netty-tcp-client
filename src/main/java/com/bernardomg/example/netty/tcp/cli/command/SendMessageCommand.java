@@ -24,6 +24,7 @@ import com.bernardomg.example.netty.tcp.client.NettyClient;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
@@ -37,6 +38,7 @@ import picocli.CommandLine.Spec;
  */
 @Command(name = "message", description = "Sends a TCP message", mixinStandardHelpOptions = true,
         versionProvider = ManifestVersionProvider.class)
+@Slf4j
 public final class SendMessageCommand implements Runnable {
 
     @Parameters(index = "0", description = "Server host", paramLabel = "HOST")
@@ -86,6 +88,8 @@ public final class SendMessageCommand implements Runnable {
             Thread.sleep(5000);
             // check the connection is successful
             if (channelFuture.isSuccess()) {
+                log.debug("Successful request");
+
                 // send message to server
                 channelFuture.channel()
                     .writeAndFlush(Unpooled.wrappedBuffer(message.getBytes()))
@@ -94,19 +98,18 @@ public final class SendMessageCommand implements Runnable {
                             writer.printf("Sent message: %s", message);
                             writer.println();
                         } else {
-                            writer.println("Message sending failed");
+                            writer.println("Failed sending message");
                         }
                     });
             }
             // timeout before closing client
             Thread.sleep(5000);
+
             // close the client
             client.shutdown();
         } catch (final Exception e) {
             e.printStackTrace();
-            writer.println("Try Starting Server First !!");
-        } finally {
-
+            writer.println("Error on startup");
         }
     }
 

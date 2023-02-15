@@ -14,28 +14,29 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 
 public final class NettyClient implements Client {
 
-    private final EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
+    private final ChannelInitializer<SocketChannel> channelInitializer;
 
-    private final String         host;
+    private final EventLoopGroup                    eventLoopGroup = new NioEventLoopGroup();
 
-    private final Integer        port;
+    private final String                            host;
 
-    private final PrintWriter    writer;
+    private final Integer                           port;
 
-    /**
-     * Constructor
-     *
-     * @param hst
-     *            server host
-     * @param prt
-     *            server port
-     */
-    public NettyClient(final String hst, final Integer prt, final PrintWriter wrt) {
+    public NettyClient(final String hst, final Integer prt, final PrintWriter writer) {
         super();
 
         port = prt;
         host = hst;
-        writer = wrt;
+
+        channelInitializer = new ChannelInitializer<>() {
+
+            @Override
+            protected void initChannel(final SocketChannel socketChannel) throws Exception {
+                socketChannel.pipeline()
+                    .addLast(new NettyHandler(writer));
+            }
+
+        };
     }
 
     /**
@@ -54,18 +55,7 @@ public final class NettyClient implements Client {
      */
     @Override
     public final ChannelFuture startup() throws InterruptedException {
-        final ChannelInitializer<SocketChannel> channelInitializer;
-        final Bootstrap                         b;
-
-        channelInitializer = new ChannelInitializer<>() {
-
-            @Override
-            protected void initChannel(final SocketChannel socketChannel) throws Exception {
-                socketChannel.pipeline()
-                    .addLast(new NettyHandler(writer));
-            }
-
-        };
+        final Bootstrap b;
 
         b = new Bootstrap();
         b.group(eventLoopGroup);
