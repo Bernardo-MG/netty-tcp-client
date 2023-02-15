@@ -84,20 +84,15 @@ public final class SendMessageCommand implements Runnable {
         writer = spec.commandLine()
             .getOut();
 
-        try {
-            // Create client
-            client = new NettyTcpClient(host, port, writer);
-            client.connect();
+        // Create client
+        client = new NettyTcpClient(host, port, writer);
+        client.connect();
 
-            // Send message
-            client.send(message);
+        // Send message
+        client.send(message);
 
-            // close client
-            client.close();
-        } catch (final Exception e) {
-            e.printStackTrace();
-            writer.println("Error on startup");
-        }
+        // close client
+        client.close();
     }
 
 }
