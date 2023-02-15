@@ -18,13 +18,13 @@
    <!-- ********************************************** -->
 
    <groupId>com.bernardomg.example</groupId>
-   <artifactId>netty-tcp-server</artifactId>
+   <artifactId>netty-tcp-client</artifactId>
    <version>0.0.1-SNAPSHOT</version>
    <packaging>jar</packaging>
 
-   <name>Netty TCP Server Example</name>
+   <name>Netty TCP Client Example</name>
    <description>An example setting up a Netty TCP client.</description>
-   <url>https://github.com/bernardo-mg/netty-tcp-server</url>
+   <url>https://github.com/bernardo-mg/netty-tcp-client</url>
    <inceptionYear>2023</inceptionYear>
 
    <licenses>
@@ -65,20 +65,20 @@
    <!-- ********************************************** -->
 
    <scm>
-      <connection>scm:git:https://github.com/bernardo-mg/netty-tcp-server.git</connection>
-      <developerConnection>scm:git:https://github.com/bernardo-mg/netty-tcp-server.git</developerConnection>
+      <connection>scm:git:https://github.com/bernardo-mg/netty-tcp-client.git</connection>
+      <developerConnection>scm:git:https://github.com/bernardo-mg/netty-tcp-client.git</developerConnection>
       <tag>head</tag>
-      <url>https://www.github.com/bernardo-mg/netty-tcp-server</url>
+      <url>https://www.github.com/bernardo-mg/netty-tcp-client</url>
    </scm>
 
    <issueManagement>
       <system>GitHub</system>
-      <url>https://www.github.com/bernardo-mg/netty-tcp-server/issues</url>
+      <url>https://www.github.com/bernardo-mg/netty-tcp-client/issues</url>
    </issueManagement>
 
    <ciManagement>
       <system>Github</system>
-      <url>https://www.github.com/bernardo-mg/netty-tcp-server/actions</url>
+      <url>https://www.github.com/bernardo-mg/netty-tcp-client/actions</url>
       <notifiers />
    </ciManagement>
 
@@ -111,7 +111,7 @@
                <!-- Github repository -->
                <id>github</id>
                <name>GitHub Packages</name>
-               <url>https://maven.pkg.github.com/bernardo-mg/netty-tcp-server</url>
+               <url>https://maven.pkg.github.com/bernardo-mg/netty-tcp-client</url>
             </repository>
          </distributionManagement>
       </profile>
@@ -257,16 +257,14 @@
       <dependency>
          <!-- Log4j SLF4J Bridge -->
          <groupId>org.apache.logging.log4j</groupId>
-         <artifactId>log4j-slf4j-impl</artifactId>
+         <artifactId>log4j-slf4j2-impl</artifactId>
          <version>${log4j.version}</version>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <!-- Log4j core -->
          <groupId>org.apache.logging.log4j</groupId>
          <artifactId>log4j-core</artifactId>
          <version>${log4j.version}</version>
-         <scope>provided</scope>
       </dependency>
       <!-- ============================================== -->
       <!-- ======= TEST ENVIRONMENT DEPENDENCIES ======== -->

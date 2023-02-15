@@ -11,7 +11,7 @@ mvn clean package
 The JAR will be a runnable Java file. It can be executed like this:
 
 ```
-java -jar target/client.jar message 127.0.0.1 11111 Hello
+java -jar target/client.jar message 127.0.0.1 8080 Hello
 ```
 
 To show other commands:
@@ -19,8 +19,6 @@ To show other commands:
 ```
 java -jar target/client.jar -h
 ```
-
-[![Maven Central](https://img.shields.io/maven-central/v/com.bernardomg.example/netty-tcp-server.svg)][maven-repo]
 
 [![Release docs](https://img.shields.io/badge/docs-release-blue.svg)][site-release]
 [![Development docs](https://img.shields.io/badge/docs-develop-blue.svg)][site-develop]
@@ -59,22 +57,6 @@ mvn verify site
 
 The verify phase is required, otherwise some of the reports won't be generated.
 
-## Usage
-
-The application is coded in Java, using Maven to manage the project.
-
-It is a Java library, meant to be included as a dependency on any project which may want to make use of it.
-
-### Installing
-
-The recommended way to install the project is by setting it up as a dependency. To get the configuration information for this check  the [Maven Central Repository][maven-repo].
-
-It is always possible installing it by using the usual Maven command:
-
-```
-mvn install
-```
-
 ## Collaborate
 
 Any kind of help with the project will be well received, and there are two main ways to give such help:
@@ -94,11 +76,11 @@ If you wish to fork or modify the code, visit the [GitHub project page][scm], wh
 
 The project has been released under the [MIT License][license].
 
-[maven-repo]: https://mvnrepository.com/artifact/com.bernardomg.example/netty-tcp-server
-[issues]: https://github.com/bernardo-mg/netty-tcp-server/issues
-[javadoc-develop]: https://docs.bernardomg.com/development/maven/netty-tcp-server/netty-tcp-server/apidocs
-[javadoc-release]: https://docs.bernardomg.com/maven/netty-tcp-server/netty-tcp-server/apidocs
+[maven-repo]: https://mvnrepository.com/artifact/com.bernardomg.example/netty-tcp-client
+[issues]: https://github.com/bernardo-mg/netty-tcp-client/issues
+[javadoc-develop]: https://docs.bernardomg.com/development/maven/netty-tcp-client/apidocs
+[javadoc-release]: https://docs.bernardomg.com/maven/netty-tcp-client/apidocs
 [license]: https://www.opensource.org/licenses/mit-license.php
-[scm]: https://github.com/bernardo-mg/netty-tcp-server
-[site-develop]: https://docs.bernardomg.com/development/maven/netty-tcp-server/netty-tcp-server
-[site-release]: https://docs.bernardomg.com/maven/netty-tcp-server/netty-tcp-server
+[scm]: https://github.com/bernardo-mg/netty-tcp-client
+[site-develop]: https://docs.bernardomg.com/development/maven/netty-tcp-client
+[site-release]: https://docs.bernardomg.com/maven/netty-tcp-client
