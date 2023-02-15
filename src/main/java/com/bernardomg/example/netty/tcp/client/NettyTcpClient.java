@@ -94,19 +94,22 @@ public final class NettyTcpClient implements Client {
 
     @Override
     public final void connect() {
-        final Bootstrap b;
+        final Bootstrap bootstrap;
 
-        b = new Bootstrap();
-        b.group(eventLoopGroup);
-        b.channel(NioSocketChannel.class);
-        b.option(ChannelOption.SO_KEEPALIVE, true);
-
-        // Sets channel initializer which listens for responses
-        b.handler(new ResponseListenerChannelInitializer(this::handleResponse));
+        bootstrap = new Bootstrap();
+        bootstrap
+            // Registers groups
+            .group(eventLoopGroup)
+            // Defines channel
+            .channel(NioSocketChannel.class)
+            // Configuration
+            .option(ChannelOption.SO_KEEPALIVE, true)
+            // Sets channel initializer which listens for responses
+            .handler(new ResponseListenerChannelInitializer(this::handleResponse));
 
         try {
             log.debug("Connecting to {}:{}", host, port);
-            channelFuture = b.connect(host, port)
+            channelFuture = bootstrap.connect(host, port)
                 .sync();
         } catch (final InterruptedException e) {
             log.error(e.getLocalizedMessage(), e);
