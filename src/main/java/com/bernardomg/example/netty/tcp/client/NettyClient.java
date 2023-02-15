@@ -64,6 +64,10 @@ public final class NettyClient implements Client {
                         writer.println("Failed sending message");
                     }
                 });
+
+            // while(!channelFuture.isDone());
+        } else {
+            log.warn("Request failure");
         }
     }
 
@@ -91,9 +95,6 @@ public final class NettyClient implements Client {
 
         channelFuture = b.connect(host, port)
             .sync();
-
-        // wait for 5 seconds
-        Thread.sleep(5000);
     }
 
 }
