@@ -22,8 +22,6 @@ import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
 import com.bernardomg.example.netty.tcp.client.Client;
 import com.bernardomg.example.netty.tcp.client.NettyClient;
 
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Parameters;
@@ -63,50 +61,25 @@ public final class SendMessageCommand implements Runnable {
 
     @Override
     public final void run() {
-        final PrintWriter   writer;
-        final Client        client;
-        final ChannelFuture channelFuture;
+        final PrintWriter writer;
+        final Client      client;
 
         writer = spec.commandLine()
             .getOut();
 
-        // Prints the final result
-        writer.println();
-        writer.println("------------");
-        writer.printf("Sending message %s to %s:%d", message, host, port);
-        writer.println();
-        writer.println("------------");
-
         try {
-            // Create a client
+            // Create client
             client = new NettyClient(host, port, writer);
-            channelFuture = client.startup();
+            client.startup();
 
-            // wait for 5 seconds
-            Thread.sleep(5000);
-            // check the connection is successful
-            if (channelFuture.isSuccess()) {
-                // send message to server
-                channelFuture.channel()
-                    .writeAndFlush(Unpooled.wrappedBuffer(message.getBytes()))
-                    .addListener(future -> {
-                        if (future.isSuccess()) {
-                            writer.printf("Sent message: %s", message);
-                            writer.println();
-                        } else {
-                            writer.println("Message sending failed");
-                        }
-                    });
-            }
-            // timeout before closing client
-            Thread.sleep(5000);
-            // close the client
+            // Send message
+            client.send(message);
+
+            // close client
             client.shutdown();
         } catch (final Exception e) {
             e.printStackTrace();
-            writer.println("Try Starting Server First !!");
-        } finally {
-
+            writer.println("Error on startup");
         }
     }
 
