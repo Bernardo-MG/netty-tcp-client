@@ -1,8 +1,8 @@
 
 package com.bernardomg.example.netty.tcp.client;
 
-import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.util.Optional;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -10,14 +10,12 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 public final class NettyChannelInboundHandler extends SimpleChannelInboundHandler<Object> {
 
-    private Boolean           received = false;
+    private Boolean          received = false;
 
-    private final PrintWriter writer;
+    private Optional<String> response = Optional.empty();
 
-    public NettyChannelInboundHandler(final PrintWriter wrt) {
+    public NettyChannelInboundHandler() {
         super();
-
-        writer = wrt;
     }
 
     @Override
@@ -27,15 +25,17 @@ public final class NettyChannelInboundHandler extends SimpleChannelInboundHandle
 
         byteBuf = (ByteBuf) msg;
         message = byteBuf.toString(Charset.defaultCharset());
-
-        writer.printf("Received Message: %s", message);
-        writer.println();
+        response = Optional.ofNullable(message);
 
         received = true;
     }
 
-    public Boolean getReceived() {
+    public final Boolean getReceived() {
         return received;
+    }
+
+    public final Optional<String> getResponse() {
+        return response;
     }
 
 }

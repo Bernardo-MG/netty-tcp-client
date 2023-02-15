@@ -40,7 +40,7 @@ public final class NettyClient implements Client {
         host = hst;
         writer = wrt;
 
-        inboundHandler = new NettyChannelInboundHandler(writer);
+        inboundHandler = new NettyChannelInboundHandler();
         channelInitializer = new ChannelInitializer<>() {
 
             @Override
@@ -82,6 +82,16 @@ public final class NettyClient implements Client {
             while ((!sent) || (!inboundHandler.getReceived())) {
                 // Wait until done
             }
+
+            if (inboundHandler.getResponse()
+                .isEmpty()) {
+                writer.println("Received no response");
+            } else {
+                writer.printf("Received Message: %s", inboundHandler.getResponse()
+                    .get());
+                writer.println();
+            }
+
             log.debug("Successful request");
         } else {
             log.warn("Request failure");
