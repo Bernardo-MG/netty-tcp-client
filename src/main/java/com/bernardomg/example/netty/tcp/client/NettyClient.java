@@ -43,7 +43,7 @@ public final class NettyClient implements Client {
             @Override
             protected void initChannel(final SocketChannel socketChannel) throws Exception {
                 socketChannel.pipeline()
-                    .addLast(new NettyHandler(writer));
+                    .addLast(new NettyChannelInboundHandler(writer));
             }
 
         };
