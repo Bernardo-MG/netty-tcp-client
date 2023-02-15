@@ -51,33 +51,32 @@ public final class NettyTcpClient implements Client {
     /**
      * Future for the main channel. Allows sending messages and reacting to responses.
      */
-    private ChannelFuture                           channelFuture;
+    private ChannelFuture        channelFuture;
 
+    private final EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
 
-    private final EventLoopGroup                    eventLoopGroup = new NioEventLoopGroup();
-
-    private Boolean                                 failed         = false;
+    private Boolean              failed         = false;
 
     /**
      * Host for the server to which this client will connect.
      */
-    private final String                            host;
+    private final String         host;
 
     /**
      * Port for the server to which this client will connect.
      */
-    private final Integer                           port;
+    private final Integer        port;
 
-    private Boolean                                 received       = false;
+    private Boolean              received       = false;
 
-    private Optional<String>                        response       = Optional.empty();
+    private Optional<String>     response       = Optional.empty();
 
-    private Boolean                                 sent           = false;
+    private Boolean              sent           = false;
 
     /**
      * CLI writer, to print console messages.
      */
-    private final PrintWriter                       writer;
+    private final PrintWriter    writer;
 
     public NettyTcpClient(final String hst, final Integer prt, final PrintWriter wrt) {
         super();
@@ -100,7 +99,7 @@ public final class NettyTcpClient implements Client {
         b.group(eventLoopGroup);
         b.channel(NioSocketChannel.class);
         b.option(ChannelOption.SO_KEEPALIVE, true);
-        
+
         // Sets channel initializer which listens for responses
         b.handler(new ResponseCatcherChannelInitializer(this::handleResponse));
 

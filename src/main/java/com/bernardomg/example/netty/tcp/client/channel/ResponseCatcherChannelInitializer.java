@@ -24,6 +24,8 @@
 
 package com.bernardomg.example.netty.tcp.client.channel;
 
+import java.util.Objects;
+
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer;
@@ -37,9 +39,9 @@ import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Cons
 public final class ResponseCatcherChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     /**
-     * Channel response catcher. Will send any response to the listener.
+     * Response listener. This will receive any response from the channel.
      */
-    private final ResponseCatcherChannelHandler responseCatcher;
+    private final Consumer<String> responseListener;
 
     /**
      * Constructs a channel initializer which adds a response catcher.
@@ -50,11 +52,15 @@ public final class ResponseCatcherChannelInitializer extends ChannelInitializer<
     public ResponseCatcherChannelInitializer(final Consumer<String> listener) {
         super();
 
-        responseCatcher = new ResponseCatcherChannelHandler(listener);
+        responseListener = Objects.requireNonNull(listener);
     }
 
     @Override
     protected final void initChannel(final SocketChannel ch) throws Exception {
+        final ResponseCatcherChannelHandler responseCatcher;
+
+        responseCatcher = new ResponseCatcherChannelHandler(responseListener);
+
         ch.pipeline()
             .addLast(responseCatcher);
     }
