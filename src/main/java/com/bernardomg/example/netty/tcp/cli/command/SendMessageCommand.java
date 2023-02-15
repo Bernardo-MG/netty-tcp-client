@@ -67,13 +67,6 @@ public final class SendMessageCommand implements Runnable {
         writer = spec.commandLine()
             .getOut();
 
-        // Prints the final result
-        writer.println();
-        writer.println("------------");
-        writer.printf("Sending message %s to %s:%d", message, host, port);
-        writer.println();
-        writer.println("------------");
-
         try {
             // Create client
             client = new NettyClient(host, port, writer);

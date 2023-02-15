@@ -21,6 +21,8 @@ public final class NettyClient implements Client {
 
     private final ChannelInitializer<SocketChannel> channelInitializer;
 
+    private Boolean                                 done           = false;
+
     private final EventLoopGroup                    eventLoopGroup = new NioEventLoopGroup();
 
     private final String                            host;
@@ -49,6 +51,14 @@ public final class NettyClient implements Client {
 
     @Override
     public void send(final String message) {
+
+        // Prints the final result
+        writer.println();
+        writer.println("------------");
+        writer.printf("Sending message %s to %s:%d", message, host, port);
+        writer.println();
+        writer.println("------------");
+
         // check the connection is successful
         if (channelFuture.isSuccess()) {
             log.debug("Successful request");
@@ -63,9 +73,14 @@ public final class NettyClient implements Client {
                     } else {
                         writer.println("Failed sending message");
                     }
-                });
+                })
+                .addListener(future -> done = true);
 
             // while(!channelFuture.isDone());
+            // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
+            while (!done) {
+                // Wait until done
+            }
         } else {
             log.warn("Request failure");
         }
