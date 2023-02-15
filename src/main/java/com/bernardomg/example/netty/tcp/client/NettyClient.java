@@ -23,6 +23,8 @@ public final class NettyClient implements Client {
 
     private final EventLoopGroup                    eventLoopGroup = new NioEventLoopGroup();
 
+    private Boolean                                 failed         = false;
+
     private final String                            host;
 
     private final NettyChannelInboundHandler        inboundHandler;
@@ -102,6 +104,7 @@ public final class NettyClient implements Client {
                     } else {
                         log.debug("Failed request future");
                         writer.println("Failed sending message");
+                        failed = true;
                     }
                 })
                 .addListener(future -> sent = true);
@@ -109,9 +112,9 @@ public final class NettyClient implements Client {
             // while(!channelFuture.isDone());
             // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
             log.debug("Waiting until the request and response are finished");
-            while ((!sent) || (!inboundHandler.getReceived())) {
+            while ((!failed) && ((!sent) || (!inboundHandler.getReceived()))) {
                 // Wait until done
-                log.trace("Waiting. Sent: {}. Received: {}", sent,inboundHandler.getReceived());
+                log.trace("Waiting. Sent: {}. Received: {}", sent, inboundHandler.getReceived());
             }
             log.debug("Finished waiting for response");
 
