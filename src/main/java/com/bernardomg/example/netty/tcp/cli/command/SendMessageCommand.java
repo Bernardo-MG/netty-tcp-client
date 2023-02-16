@@ -27,8 +27,10 @@ package com.bernardomg.example.netty.tcp.cli.command;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import com.bernardomg.example.netty.tcp.cli.CliWriterClientListener;
 import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
 import com.bernardomg.example.netty.tcp.client.Client;
+import com.bernardomg.example.netty.tcp.client.ClientListener;
 import com.bernardomg.example.netty.tcp.client.NettyTcpClient;
 
 import picocli.CommandLine.Command;
@@ -87,8 +89,9 @@ public final class SendMessageCommand implements Runnable {
 
     @Override
     public final void run() {
-        final PrintWriter writer;
-        final Client      client;
+        final PrintWriter    writer;
+        final Client         client;
+        final ClientListener listener;
 
         if (verbose) {
             // Prints to console
@@ -100,11 +103,12 @@ public final class SendMessageCommand implements Runnable {
         }
 
         // Create client
-        client = new NettyTcpClient(host, port, writer);
+        listener = new CliWriterClientListener(host, port, writer);
+        client = new NettyTcpClient(host, port, listener);
         client.connect();
 
         // Send message
-        client.send(message);
+        client.request(message);
 
         // close client
         client.close();

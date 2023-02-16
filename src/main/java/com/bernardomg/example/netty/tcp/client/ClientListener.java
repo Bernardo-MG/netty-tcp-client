@@ -24,30 +24,36 @@
 
 package com.bernardomg.example.netty.tcp.client;
 
+import java.util.Optional;
+
 /**
- * Generic client. Can start a connection, close said connection and send messages.
+ * Client listener. Allows reacting to events related to the client.
  *
- * @author bernardo.martinezg
+ * @author Bernardo
  *
  */
-public interface Client {
+public interface ClientListener {
 
     /**
-     * Closes the current connection.
+     * Reacts to the client closing the connection.
      */
-    public void close();
+    public void onClose();
 
     /**
-     * Starts a connection.
+     * Reacts to the client opening a connection.
      */
-    public void connect();
+    public void onConnect();
 
     /**
-     * Sends the message through the connection.
+     * Reacts to the client sending a request.
      *
-     * @param message
-     *            message to send
+     * @param request
+     *            request sent
+     * @param response
+     *            response received
+     * @param success
+     *            success status
      */
-    public void request(final String message);
+    public void onRequest(final String request, final Optional<String> response, final Boolean success);
 
 }

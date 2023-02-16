@@ -24,7 +24,6 @@
 
 package com.bernardomg.example.netty.tcp.client;
 
-import java.io.PrintWriter;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -63,6 +62,8 @@ public final class NettyTcpClient implements Client {
      */
     private final String         host;
 
+    private final ClientListener listener;
+
     /**
      * Port for the server to which this client will connect.
      */
@@ -74,27 +75,26 @@ public final class NettyTcpClient implements Client {
 
     private Boolean              sent           = false;
 
-    /**
-     * CLI writer, to print console messages.
-     */
-    private final PrintWriter    writer;
-
-    public NettyTcpClient(final String hst, final Integer prt, final PrintWriter wrt) {
+    public NettyTcpClient(final String hst, final Integer prt, final ClientListener lst) {
         super();
 
         port = Objects.requireNonNull(prt);
         host = Objects.requireNonNull(hst);
-        writer = Objects.requireNonNull(wrt);
+        listener = Objects.requireNonNull(lst);
     }
 
     @Override
     public final void close() {
+        listener.onClose();
+
         eventLoopGroup.shutdownGracefully();
     }
 
     @Override
     public final void connect() {
         final Bootstrap bootstrap;
+
+        listener.onConnect();
 
         bootstrap = new Bootstrap();
         bootstrap
@@ -122,15 +122,8 @@ public final class NettyTcpClient implements Client {
     }
 
     @Override
-    public final void send(final String message) {
+    public final void request(final String message) {
         log.debug("Sending message {}", message);
-
-        // Prints the final result
-        writer.println();
-        writer.println("------------");
-        writer.printf("Sending message %s to %s:%d", message, host, port);
-        writer.println();
-        writer.println("------------");
 
         // check the connection is successful
         if (channelFuture.isSuccess()) {
@@ -142,11 +135,8 @@ public final class NettyTcpClient implements Client {
                 .addListener(future -> {
                     if (future.isSuccess()) {
                         log.debug("Successful request future");
-                        writer.printf("Sent message: %s", message);
-                        writer.println();
                     } else {
                         log.debug("Failed request future");
-                        writer.println("Failed sending message");
                         failed = true;
                     }
                 })
@@ -161,12 +151,8 @@ public final class NettyTcpClient implements Client {
             }
             log.trace("Finished waiting for response");
 
-            if (response.isEmpty()) {
-                writer.println("Received no response");
-            } else {
-                writer.printf("Received response: %s", response.get());
-                writer.println();
-            }
+            // Calls listener
+            listener.onRequest(message, response, !failed);
 
             log.debug("Successful request");
         } else {
