@@ -1,6 +1,6 @@
 # Netty TCP Client Example
 
-This is a basic Maven-based Java project created with the use of the [Library Maven Archetype](https://github.com/Bernardo-MG/library-maven-archetype). It will ease the development of new libraries, setting it up for CI through the use of free services: [Github](https://github.com/), [Github Workflow](https://docs.github.com/en/actions/configuring-and-managing-workflows), [Github Packages](https://github.com/features/packages) and [OSS Sonatype](https://oss.sonatype.org/).
+A small Netty TCP client to serve as an example.
 
 To use the project first package it:
 
@@ -20,7 +20,9 @@ To show other commands:
 java -jar target/client.jar -h
 ```
 
-You can use this project along the [Netty TCP Server Example](https://github.com/Bernardo-MG/netty-tcp-server-example) to experiment with TCP communications between a client and a server.
+You can use this project along these others:
+- [Netty TCP Server Example](https://github.com/Bernardo-MG/netty-tcp-server-example)
+- [Reactor Netty TCP Server Example](https://github.com/Bernardo-MG/reactor-netty-tcp-server-example)
 
 [![Release docs](https://img.shields.io/badge/docs-release-blue.svg)][site-release]
 [![Development docs](https://img.shields.io/badge/docs-develop-blue.svg)][site-develop]
