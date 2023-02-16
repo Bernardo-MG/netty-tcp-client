@@ -163,11 +163,11 @@ public final class NettyTcpClient implements Client {
     /**
      * Channel response event listener. Will receive any response sent by the server.
      *
-     * @param rsp
+     * @param resp
      *            response received
      */
-    private final void handleResponse(final ChannelHandlerContext ctx, final String msg) {
-        response = Optional.ofNullable(msg);
+    private final void handleResponse(final ChannelHandlerContext ctx, final String resp) {
+        response = Optional.ofNullable(resp);
         received = true;
     }
 
