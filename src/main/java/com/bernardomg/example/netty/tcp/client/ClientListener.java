@@ -22,28 +22,38 @@
  * SOFTWARE.
  */
 
-package com.bernardomg.example.netty.tcp;
+package com.bernardomg.example.netty.tcp.client;
 
-import com.bernardomg.example.netty.tcp.cli.TcpClientMenu;
+import java.util.Optional;
 
-import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine;
+/**
+ * Client listener. Allows reacting to events related to the client.
+ *
+ * @author Bernardo
+ *
+ */
+public interface ClientListener {
 
-@Slf4j
-public class Main {
+    /**
+     * Reacts to the client closing the connection.
+     */
+    public void onClose();
 
-    public static void main(final String[] args) {
-        final Integer exitCode;
+    /**
+     * Reacts to the client opening a connection.
+     */
+    public void onConnect();
 
-        exitCode = new CommandLine(new TcpClientMenu()).execute(args);
-
-        log.debug("Exited with code {}", exitCode);
-
-        System.exit(exitCode);
-    }
-
-    public Main() {
-        super();
-    }
+    /**
+     * Reacts to the client sending a request.
+     *
+     * @param request
+     *            request sent
+     * @param response
+     *            response received
+     * @param success
+     *            success status
+     */
+    public void onRequest(final String request, final Optional<String> response, final Boolean success);
 
 }

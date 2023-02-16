@@ -11,7 +11,7 @@ mvn clean package
 The JAR will be a runnable Java file. It can be executed like this:
 
 ```
-java -jar target/client.jar message 127.0.0.1 8080 Hello
+java -jar target/client.jar message localhost 8080 Hello
 ```
 
 To show other commands:
@@ -19,6 +19,8 @@ To show other commands:
 ```
 java -jar target/client.jar -h
 ```
+
+You can use this project along the [Netty TCP Server Example](https://github.com/Bernardo-MG/netty-tcp-server-example) to experiment with TCP communications between a client and a server.
 
 [![Release docs](https://img.shields.io/badge/docs-release-blue.svg)][site-release]
 [![Development docs](https://img.shields.io/badge/docs-develop-blue.svg)][site-develop]
