@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Netty based TCP client.
  *
- * @author bernardo.martinezg
+ * @author Bernardo Mart&iacute;nez Garrido
  *
  */
 @Slf4j
