@@ -30,6 +30,7 @@ import com.bernardomg.example.netty.tcp.client.channel.ResponseListenerChannelIn
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
@@ -50,7 +51,7 @@ public final class NettyTcpClient implements Client {
     /**
      * Future for the main channel. Allows sending messages and reacting to responses.
      */
-    private ChannelFuture             channelFuture;
+    private Channel                   channel;
 
     private final EventLoopGroup      eventLoopGroup = new NioEventLoopGroup();
 
@@ -89,7 +90,8 @@ public final class NettyTcpClient implements Client {
 
     @Override
     public final void connect() {
-        final Bootstrap bootstrap;
+        final Bootstrap     bootstrap;
+        final ChannelFuture channelFuture;
 
         listener.onStart();
 
@@ -116,80 +118,64 @@ public final class NettyTcpClient implements Client {
         if (channelFuture.isSuccess()) {
             log.debug("Connected correctly to {}:{}", host, port);
         }
+
+        channel = channelFuture.channel();
     }
 
     @Override
     public final void request() {
         log.debug("Sending empty request");
 
-        // check the connection is successful
-        if (channelFuture.isSuccess()) {
-            log.debug("Starting request");
+        // send message to server
+        channel.writeAndFlush(Unpooled.wrappedBuffer("".getBytes()))
+            .addListener(future -> {
+                if (future.isSuccess()) {
+                    log.debug("Successful request future");
+                    listener.onSend("");
+                } else {
+                    log.debug("Failed request future");
+                    failed = true;
+                }
+                sent = true;
+            });
 
-            // send message to server
-            channelFuture.channel()
-                .writeAndFlush(Unpooled.wrappedBuffer("".getBytes()))
-                .addListener(future -> {
-                    if (future.isSuccess()) {
-                        log.debug("Successful request future");
-                        listener.onSend("");
-                    } else {
-                        log.debug("Failed request future");
-                        failed = true;
-                    }
-                    sent = true;
-                });
-
-            // while(!channelFuture.isDone());
-            // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
-            log.trace("Waiting until the request and response are finished");
-            while ((!failed) && ((!sent) || (!received))) {
-                // Wait until done
-                log.trace("Waiting. Sent: {}. Received: {}. Failed: {}", sent, received, failed);
-            }
-            log.trace("Finished waiting for response");
-
-            log.debug("Successful request");
-        } else {
-            log.warn("Request failure");
+        // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
+        log.trace("Waiting until the request and response are finished");
+        while ((!failed) && ((!sent) || (!received))) {
+            // Wait until done
+            log.trace("Waiting. Sent: {}. Received: {}. Failed: {}", sent, received, failed);
         }
+        log.trace("Finished waiting for response");
+
+        log.debug("Successful request");
     }
 
     @Override
     public final void request(final String message) {
         log.debug("Sending message {}", message);
 
-        // check the connection is successful
-        if (channelFuture.isSuccess()) {
-            log.debug("Starting request");
+        // send message to server
+        channel.writeAndFlush(Unpooled.wrappedBuffer(message.getBytes()))
+            .addListener(future -> {
+                if (future.isSuccess()) {
+                    log.debug("Successful request future");
+                    listener.onSend(message);
+                } else {
+                    log.debug("Failed request future");
+                    failed = true;
+                }
+                sent = true;
+            });
 
-            // send message to server
-            channelFuture.channel()
-                .writeAndFlush(Unpooled.wrappedBuffer(message.getBytes()))
-                .addListener(future -> {
-                    if (future.isSuccess()) {
-                        log.debug("Successful request future");
-                        listener.onSend(message);
-                    } else {
-                        log.debug("Failed request future");
-                        failed = true;
-                    }
-                    sent = true;
-                });
-
-            // while(!channelFuture.isDone());
-            // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
-            log.trace("Waiting until the request and response are finished");
-            while ((!failed) && ((!sent) || (!received))) {
-                // Wait until done
-                log.trace("Waiting. Sent: {}. Received: {}. Failed: {}", sent, received, failed);
-            }
-            log.trace("Finished waiting for response");
-
-            log.debug("Successful request");
-        } else {
-            log.warn("Request failure");
+        // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
+        log.trace("Waiting until the request and response are finished");
+        while ((!failed) && ((!sent) || (!received))) {
+            // Wait until done
+            log.trace("Waiting. Sent: {}. Received: {}. Failed: {}", sent, received, failed);
         }
+        log.trace("Finished waiting for response");
+
+        log.debug("Successful request");
     }
 
     /**
