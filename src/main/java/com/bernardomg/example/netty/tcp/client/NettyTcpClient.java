@@ -25,7 +25,6 @@
 package com.bernardomg.example.netty.tcp.client;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import com.bernardomg.example.netty.tcp.client.channel.ResponseListenerChannelInitializer;
 
@@ -42,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Netty based TCP client.
  *
- * @author bernardo.martinezg
+ * @author Bernardo Mart&iacute;nez Garrido
  *
  */
 @Slf4j
@@ -51,31 +50,29 @@ public final class NettyTcpClient implements Client {
     /**
      * Future for the main channel. Allows sending messages and reacting to responses.
      */
-    private ChannelFuture        channelFuture;
+    private ChannelFuture             channelFuture;
 
-    private final EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
+    private final EventLoopGroup      eventLoopGroup = new NioEventLoopGroup();
 
-    private Boolean              failed         = false;
+    private Boolean                   failed         = false;
 
     /**
      * Host for the server to which this client will connect.
      */
-    private final String         host;
+    private final String              host;
 
-    private final ClientListener listener;
+    private final TransactionListener listener;
 
     /**
      * Port for the server to which this client will connect.
      */
-    private final Integer        port;
+    private final Integer             port;
 
-    private Boolean              received       = false;
+    private Boolean                   received       = false;
 
-    private Optional<String>     response       = Optional.empty();
+    private Boolean                   sent           = false;
 
-    private Boolean              sent           = false;
-
-    public NettyTcpClient(final String hst, final Integer prt, final ClientListener lst) {
+    public NettyTcpClient(final String hst, final Integer prt, final TransactionListener lst) {
         super();
 
         port = Objects.requireNonNull(prt);
@@ -85,7 +82,7 @@ public final class NettyTcpClient implements Client {
 
     @Override
     public final void close() {
-        listener.onClose();
+        listener.onStop();
 
         eventLoopGroup.shutdownGracefully();
     }
@@ -94,7 +91,7 @@ public final class NettyTcpClient implements Client {
     public final void connect() {
         final Bootstrap bootstrap;
 
-        listener.onConnect();
+        listener.onStart();
 
         bootstrap = new Bootstrap();
         bootstrap
@@ -135,12 +132,13 @@ public final class NettyTcpClient implements Client {
                 .addListener(future -> {
                     if (future.isSuccess()) {
                         log.debug("Successful request future");
+                        listener.onSend(message);
                     } else {
                         log.debug("Failed request future");
                         failed = true;
                     }
-                })
-                .addListener(future -> sent = true);
+                    sent = true;
+                });
 
             // while(!channelFuture.isDone());
             // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
@@ -150,9 +148,6 @@ public final class NettyTcpClient implements Client {
                 log.trace("Waiting. Sent: {}. Received: {}. Failed: {}", sent, received, failed);
             }
             log.trace("Finished waiting for response");
-
-            // Calls listener
-            listener.onRequest(message, response, !failed);
 
             log.debug("Successful request");
         } else {
@@ -167,7 +162,8 @@ public final class NettyTcpClient implements Client {
      *            response received
      */
     private final void handleResponse(final ChannelHandlerContext ctx, final String resp) {
-        response = Optional.ofNullable(resp);
+        listener.onReceive(resp);
+
         received = true;
     }
 
