@@ -119,6 +119,43 @@ public final class NettyTcpClient implements Client {
     }
 
     @Override
+    public final void request() {
+        log.debug("Sending empty request");
+
+        // check the connection is successful
+        if (channelFuture.isSuccess()) {
+            log.debug("Starting request");
+
+            // send message to server
+            channelFuture.channel()
+                .writeAndFlush(Unpooled.wrappedBuffer("".getBytes()))
+                .addListener(future -> {
+                    if (future.isSuccess()) {
+                        log.debug("Successful request future");
+                        listener.onSend("");
+                    } else {
+                        log.debug("Failed request future");
+                        failed = true;
+                    }
+                    sent = true;
+                });
+
+            // while(!channelFuture.isDone());
+            // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
+            log.trace("Waiting until the request and response are finished");
+            while ((!failed) && ((!sent) || (!received))) {
+                // Wait until done
+                log.trace("Waiting. Sent: {}. Received: {}. Failed: {}", sent, received, failed);
+            }
+            log.trace("Finished waiting for response");
+
+            log.debug("Successful request");
+        } else {
+            log.warn("Request failure");
+        }
+    }
+
+    @Override
     public final void request(final String message) {
         log.debug("Sending message {}", message);
 
