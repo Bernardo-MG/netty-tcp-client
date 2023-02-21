@@ -55,8 +55,6 @@ public final class NettyTcpClient implements Client {
 
     private final EventLoopGroup      eventLoopGroup = new NioEventLoopGroup();
 
-    private Boolean                   failed         = false;
-
     /**
      * Host for the server to which this client will connect.
      */
@@ -69,10 +67,6 @@ public final class NettyTcpClient implements Client {
      */
     private final Integer             port;
 
-    private Boolean                   received       = false;
-
-    private Boolean                   sent           = false;
-
     public NettyTcpClient(final String hst, final Integer prt, final TransactionListener lst) {
         super();
 
@@ -83,6 +77,8 @@ public final class NettyTcpClient implements Client {
 
     @Override
     public final void close() {
+        log.debug("Closing connection");
+
         listener.onStop();
 
         eventLoopGroup.shutdownGracefully();
@@ -92,6 +88,8 @@ public final class NettyTcpClient implements Client {
     public final void connect() {
         final Bootstrap     bootstrap;
         final ChannelFuture channelFuture;
+
+        log.debug("Starting connection");
 
         listener.onStart();
 
@@ -134,18 +132,8 @@ public final class NettyTcpClient implements Client {
                     listener.onSend("");
                 } else {
                     log.debug("Failed request future");
-                    failed = true;
                 }
-                sent = true;
             });
-
-        // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
-        log.trace("Waiting until the request and response are finished");
-        while ((!failed) && ((!sent) || (!received))) {
-            // Wait until done
-            log.trace("Waiting. Sent: {}. Received: {}. Failed: {}", sent, received, failed);
-        }
-        log.trace("Finished waiting for response");
 
         log.debug("Successful request");
     }
@@ -162,18 +150,8 @@ public final class NettyTcpClient implements Client {
                     listener.onSend(message);
                 } else {
                     log.debug("Failed request future");
-                    failed = true;
                 }
-                sent = true;
             });
-
-        // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
-        log.trace("Waiting until the request and response are finished");
-        while ((!failed) && ((!sent) || (!received))) {
-            // Wait until done
-            log.trace("Waiting. Sent: {}. Received: {}. Failed: {}", sent, received, failed);
-        }
-        log.trace("Finished waiting for response");
 
         log.debug("Successful request");
     }
@@ -186,8 +164,6 @@ public final class NettyTcpClient implements Client {
      */
     private final void handleResponse(final ChannelHandlerContext ctx, final String resp) {
         listener.onReceive(resp);
-
-        received = true;
     }
 
 }
