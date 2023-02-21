@@ -122,7 +122,7 @@ public final class NettyTcpClient implements Client {
 
     @Override
     public final void request() {
-        log.debug("Sending empty request");
+        log.debug("Sending empty message");
 
         // send message to server
         channel.writeAndFlush(Unpooled.EMPTY_BUFFER)
@@ -135,7 +135,7 @@ public final class NettyTcpClient implements Client {
                 }
             });
 
-        log.debug("Successful request");
+        log.debug("Sent message");
     }
 
     @Override
@@ -153,7 +153,7 @@ public final class NettyTcpClient implements Client {
                 }
             });
 
-        log.debug("Successful request");
+        log.debug("Sent message");
     }
 
     /**
