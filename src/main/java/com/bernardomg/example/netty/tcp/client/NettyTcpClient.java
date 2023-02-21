@@ -26,7 +26,7 @@ package com.bernardomg.example.netty.tcp.client;
 
 import java.util.Objects;
 
-import com.bernardomg.example.netty.tcp.client.channel.ResponseListenerChannelInitializer;
+import com.bernardomg.example.netty.tcp.client.channel.MessageListenerChannelInitializer;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -104,7 +104,7 @@ public final class NettyTcpClient implements Client {
             // Configuration
             .option(ChannelOption.SO_KEEPALIVE, true)
             // Sets channel initializer which listens for responses
-            .handler(new ResponseListenerChannelInitializer(this::handleResponse));
+            .handler(new MessageListenerChannelInitializer(this::handleResponse));
 
         try {
             log.debug("Connecting to {}:{}", host, port);
