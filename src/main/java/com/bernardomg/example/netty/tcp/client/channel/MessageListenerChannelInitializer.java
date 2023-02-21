@@ -66,6 +66,8 @@ public final class MessageListenerChannelInitializer extends ChannelInitializer<
         ch.pipeline()
             // Transforms message into a string
             .addLast("decoder", new StringDecoder())
+            // Adds event logger
+            .addLast(new EventLoggerChannelHandler())
             // Adds listener handler
             .addLast(listenerHandler);
 

@@ -58,16 +58,6 @@ public final class MessageListenerChannelHandler extends SimpleChannelInboundHan
     }
 
     @Override
-    public final void channelActive(final ChannelHandlerContext ctx) {
-        log.debug("Channel active");
-    }
-
-    @Override
-    public final void channelInactive(final ChannelHandlerContext ctx) {
-        log.debug("Channel inactive");
-    }
-
-    @Override
     public final void channelRead0(final ChannelHandlerContext ctx, final String message) throws Exception {
         log.debug("Received message {}", message);
 
