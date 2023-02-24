@@ -50,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 public final class NettyTcpClient implements Client {
 
     /**
-     * Future for the main channel. Allows sending messages and reacting to responses.
+     * Main channel. For sending messages and reacting to responses.
      */
     private Channel                   channel;
 
