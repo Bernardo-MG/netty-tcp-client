@@ -135,11 +135,11 @@ public final class SendMessageCommand implements Runnable {
         writer.println("finished waiting");
         log.debug("Finished waiting for responses");
 
-        // Close writer
-        writer.close();
-
         // close client
         client.close();
+
+        // Close writer
+        writer.close();
     }
 
 }
