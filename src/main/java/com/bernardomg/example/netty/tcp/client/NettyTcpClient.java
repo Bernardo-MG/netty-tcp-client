@@ -75,7 +75,7 @@ public final class NettyTcpClient implements Client {
     private final Integer             port;
 
     /**
-     * Builds a client for the received host. The transaction listener will react to events when calling the server.
+     * Constructs a client for the received host. The transaction listener will react to events when calling the server.
      *
      * @param hst
      *            host for the client to connect
