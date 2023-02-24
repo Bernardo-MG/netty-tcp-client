@@ -24,6 +24,7 @@
 
 package com.bernardomg.example.netty.tcp.client;
 
+import java.nio.charset.Charset;
 import java.util.Objects;
 
 import com.bernardomg.example.netty.tcp.client.channel.MessageListenerChannelInitializer;
@@ -75,7 +76,7 @@ public final class NettyTcpClient implements Client {
 
     /**
      * Builds a client for the received host. The transaction listener will react to events when calling the server.
-     * 
+     *
      * @param hst
      *            host for the client to connect
      * @param prt
@@ -159,7 +160,7 @@ public final class NettyTcpClient implements Client {
         log.debug("Sending message {}", message);
 
         // send message to server
-        channel.writeAndFlush(Unpooled.wrappedBuffer(message.getBytes()))
+        channel.writeAndFlush(Unpooled.wrappedBuffer(message.getBytes(Charset.defaultCharset())))
             .addListener(future -> {
                 if (future.isSuccess()) {
                     log.debug("Successful request future");
