@@ -53,6 +53,9 @@ public final class NettyTcpClient implements Client {
      */
     private Channel                   channel;
 
+    /**
+     * Client event loop. Used when closing the client.
+     */
     private final EventLoopGroup      eventLoopGroup = new NioEventLoopGroup();
 
     /**
@@ -60,6 +63,9 @@ public final class NettyTcpClient implements Client {
      */
     private final String              host;
 
+    /**
+     * Transaction listener. Reacts to events during the request.
+     */
     private final TransactionListener listener;
 
     /**
@@ -67,6 +73,16 @@ public final class NettyTcpClient implements Client {
      */
     private final Integer             port;
 
+    /**
+     * Builds a client for the received host. The transaction listener will react to events when calling the server.
+     * 
+     * @param hst
+     *            host for the client to connect
+     * @param prt
+     *            host port to connect
+     * @param lst
+     *            transaction listener
+     */
     public NettyTcpClient(final String hst, final Integer prt, final TransactionListener lst) {
         super();
 
@@ -159,6 +175,8 @@ public final class NettyTcpClient implements Client {
     /**
      * Channel response event listener. Will receive any response sent by the server.
      *
+     * @param ctx
+     *            channel context
      * @param resp
      *            response received
      */
