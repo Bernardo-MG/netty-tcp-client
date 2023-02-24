@@ -34,35 +34,47 @@ import io.netty.handler.codec.string.StringDecoder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Initializes the channel with a response listener.
+ * Initializes the channel with a message listener. Any message received by the channel will be sent to the listener.
  *
  * @author Bernardo Mart&iacute;nez Garrido
  *
  */
 @Slf4j
-public final class ResponseListenerChannelInitializer extends ChannelInitializer<SocketChannel> {
+public final class MessageListenerChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     /**
-     * Response listener. This will receive any response from the channel.
+     * Message listener. This will receive any response from the channel.
      */
-    private final BiConsumer<ChannelHandlerContext, String> responseListener;
+    private final BiConsumer<ChannelHandlerContext, String> listener;
 
-    public ResponseListenerChannelInitializer(final BiConsumer<ChannelHandlerContext, String> listener) {
+    /**
+     * Constructs a channel initializer with the received listener.
+     *
+     * @param listnr
+     *            listener for the channel messages
+     */
+    public MessageListenerChannelInitializer(final BiConsumer<ChannelHandlerContext, String> listnr) {
         super();
 
-        responseListener = Objects.requireNonNull(listener);
+        listener = Objects.requireNonNull(listnr);
     }
 
     @Override
-    protected final void initChannel(final SocketChannel ch) throws Exception {
-        final ResponseListenerChannelHandler listenerHandler;
+    protected final void initChannel(final SocketChannel channel) throws Exception {
+        final MessageListenerChannelHandler listenerHandler;
 
-        listenerHandler = new ResponseListenerChannelHandler(responseListener);
+        // Message listener handler
+        // Sends any message received by the channel to the listener
+        listenerHandler = new MessageListenerChannelHandler(listener);
 
         log.debug("Initializing channel");
 
-        ch.pipeline()
+        channel.pipeline()
+            // Transforms message into a string
             .addLast("decoder", new StringDecoder())
+            // Adds event logger
+            .addLast(new EventLoggerChannelHandler())
+            // Adds listener handler
             .addLast(listenerHandler);
 
         log.debug("Initialized channel");

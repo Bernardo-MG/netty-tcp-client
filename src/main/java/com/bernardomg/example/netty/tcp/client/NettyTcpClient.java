@@ -24,12 +24,14 @@
 
 package com.bernardomg.example.netty.tcp.client;
 
+import java.nio.charset.Charset;
 import java.util.Objects;
 
-import com.bernardomg.example.netty.tcp.client.channel.ResponseListenerChannelInitializer;
+import com.bernardomg.example.netty.tcp.client.channel.MessageListenerChannelInitializer;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
@@ -50,17 +52,21 @@ public final class NettyTcpClient implements Client {
     /**
      * Future for the main channel. Allows sending messages and reacting to responses.
      */
-    private ChannelFuture             channelFuture;
+    private Channel                   channel;
 
+    /**
+     * Client event loop. Used when closing the client.
+     */
     private final EventLoopGroup      eventLoopGroup = new NioEventLoopGroup();
-
-    private Boolean                   failed         = false;
 
     /**
      * Host for the server to which this client will connect.
      */
     private final String              host;
 
+    /**
+     * Transaction listener. Reacts to events during the request.
+     */
     private final TransactionListener listener;
 
     /**
@@ -68,10 +74,16 @@ public final class NettyTcpClient implements Client {
      */
     private final Integer             port;
 
-    private Boolean                   received       = false;
-
-    private Boolean                   sent           = false;
-
+    /**
+     * Builds a client for the received host. The transaction listener will react to events when calling the server.
+     *
+     * @param hst
+     *            host for the client to connect
+     * @param prt
+     *            host port to connect
+     * @param lst
+     *            transaction listener
+     */
     public NettyTcpClient(final String hst, final Integer prt, final TransactionListener lst) {
         super();
 
@@ -82,6 +94,8 @@ public final class NettyTcpClient implements Client {
 
     @Override
     public final void close() {
+        log.debug("Closing connection");
+
         listener.onStop();
 
         eventLoopGroup.shutdownGracefully();
@@ -89,7 +103,10 @@ public final class NettyTcpClient implements Client {
 
     @Override
     public final void connect() {
-        final Bootstrap bootstrap;
+        final Bootstrap     bootstrap;
+        final ChannelFuture channelFuture;
+
+        log.debug("Starting connection");
 
         listener.onStart();
 
@@ -102,7 +119,7 @@ public final class NettyTcpClient implements Client {
             // Configuration
             .option(ChannelOption.SO_KEEPALIVE, true)
             // Sets channel initializer which listens for responses
-            .handler(new ResponseListenerChannelInitializer(this::handleResponse));
+            .handler(new MessageListenerChannelInitializer(this::handleResponse));
 
         try {
             log.debug("Connecting to {}:{}", host, port);
@@ -116,55 +133,56 @@ public final class NettyTcpClient implements Client {
         if (channelFuture.isSuccess()) {
             log.debug("Connected correctly to {}:{}", host, port);
         }
+
+        channel = channelFuture.channel();
+    }
+
+    @Override
+    public final void request() {
+        log.debug("Sending empty message");
+
+        // send message to server
+        channel.writeAndFlush(Unpooled.EMPTY_BUFFER)
+            .addListener(future -> {
+                if (future.isSuccess()) {
+                    log.debug("Successful request future");
+                    listener.onSend("");
+                } else {
+                    log.debug("Failed request future");
+                }
+            });
+
+        log.debug("Sent message");
     }
 
     @Override
     public final void request(final String message) {
         log.debug("Sending message {}", message);
 
-        // check the connection is successful
-        if (channelFuture.isSuccess()) {
-            log.debug("Starting request");
+        // send message to server
+        channel.writeAndFlush(Unpooled.wrappedBuffer(message.getBytes(Charset.defaultCharset())))
+            .addListener(future -> {
+                if (future.isSuccess()) {
+                    log.debug("Successful request future");
+                    listener.onSend(message);
+                } else {
+                    log.debug("Failed request future");
+                }
+            });
 
-            // send message to server
-            channelFuture.channel()
-                .writeAndFlush(Unpooled.wrappedBuffer(message.getBytes()))
-                .addListener(future -> {
-                    if (future.isSuccess()) {
-                        log.debug("Successful request future");
-                        listener.onSend(message);
-                    } else {
-                        log.debug("Failed request future");
-                        failed = true;
-                    }
-                    sent = true;
-                });
-
-            // while(!channelFuture.isDone());
-            // FIXME: This is awful and prone to errors. Handle the futures as they should be handled
-            log.trace("Waiting until the request and response are finished");
-            while ((!failed) && ((!sent) || (!received))) {
-                // Wait until done
-                log.trace("Waiting. Sent: {}. Received: {}. Failed: {}", sent, received, failed);
-            }
-            log.trace("Finished waiting for response");
-
-            log.debug("Successful request");
-        } else {
-            log.warn("Request failure");
-        }
+        log.debug("Sent message");
     }
 
     /**
      * Channel response event listener. Will receive any response sent by the server.
      *
+     * @param ctx
+     *            channel context
      * @param resp
      *            response received
      */
     private final void handleResponse(final ChannelHandlerContext ctx, final String resp) {
         listener.onReceive(resp);
-
-        received = true;
     }
 
 }
