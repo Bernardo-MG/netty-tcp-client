@@ -129,6 +129,9 @@ public final class SendEmptyMessageCommand implements Runnable {
         writer.println("finished waiting");
         log.debug("Finished waiting for responses");
 
+        // Close writer
+        writer.close();
+
         // close client
         client.close();
     }

@@ -47,14 +47,20 @@ public final class MessageListenerChannelInitializer extends ChannelInitializer<
      */
     private final BiConsumer<ChannelHandlerContext, String> listener;
 
-    public MessageListenerChannelInitializer(final BiConsumer<ChannelHandlerContext, String> lstn) {
+    /**
+     * Constructs a channel initializer with the received listener.
+     *
+     * @param listnr
+     *            listener for the channel messages
+     */
+    public MessageListenerChannelInitializer(final BiConsumer<ChannelHandlerContext, String> listnr) {
         super();
 
-        listener = Objects.requireNonNull(lstn);
+        listener = Objects.requireNonNull(listnr);
     }
 
     @Override
-    protected final void initChannel(final SocketChannel ch) throws Exception {
+    protected final void initChannel(final SocketChannel channel) throws Exception {
         final MessageListenerChannelHandler listenerHandler;
 
         // Message listener handler
@@ -63,7 +69,7 @@ public final class MessageListenerChannelInitializer extends ChannelInitializer<
 
         log.debug("Initializing channel");
 
-        ch.pipeline()
+        channel.pipeline()
             // Transforms message into a string
             .addLast("decoder", new StringDecoder())
             // Adds event logger
