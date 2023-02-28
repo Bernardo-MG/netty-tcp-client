@@ -33,7 +33,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LoggingHandler;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Initializes the channel with a message listener. Any message received by the channel will be sent to the listener.
@@ -41,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
  * @author Bernardo Mart&iacute;nez Garrido
  *
  */
-@Slf4j
 public final class MessageListenerChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     /**
@@ -69,8 +67,6 @@ public final class MessageListenerChannelInitializer extends ChannelInitializer<
         // Sends any message received by the channel to the listener
         listenerHandler = new MessageListenerChannelHandler(listener);
 
-        log.debug("Initializing channel");
-
         channel.pipeline()
             // Transforms message into a string
             .addLast("encoder", new StringEncoder())
@@ -79,8 +75,6 @@ public final class MessageListenerChannelInitializer extends ChannelInitializer<
             .addLast(new LoggingHandler())
             // Adds listener handler
             .addLast(listenerHandler);
-
-        log.debug("Initialized channel");
     }
 
 }
