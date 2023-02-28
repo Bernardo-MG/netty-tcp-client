@@ -178,11 +178,16 @@ public final class NettyTcpClient implements Client {
      *
      * @param ctx
      *            channel context
-     * @param resp
+     * @param response
      *            response received
      */
-    private final void handleResponse(final ChannelHandlerContext ctx, final String resp) {
-        listener.onReceive(resp);
+    private final void handleResponse(final ChannelHandlerContext ctx, final String response) {
+
+        log.debug("Handling response");
+
+        log.debug("Received response: {}", response);
+
+        listener.onReceive(response);
     }
 
 }
