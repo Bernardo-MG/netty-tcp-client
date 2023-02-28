@@ -22,31 +22,35 @@
  * SOFTWARE.
  */
 
-package com.bernardomg.example.netty.tcp.cli;
+package com.bernardomg.example.netty.tcp.client;
 
-import com.bernardomg.example.netty.tcp.cli.command.SendEmptyMessageCommand;
-import com.bernardomg.example.netty.tcp.cli.command.SendMessageCommand;
-import com.bernardomg.example.netty.tcp.cli.command.SendMultipleMessagesCommand;
-import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
+import java.util.Objects;
+import java.util.function.BiConsumer;
 
-import picocli.CommandLine.Command;
+import io.netty.channel.ChannelHandlerContext;
 
 /**
- * TCP client menu.
+ * Transaction handler which sends any received message to the listener.
  *
  * @author Bernardo Mart&iacute;nez Garrido
  *
  */
-@Command(description = "TCP client",
-        subcommands = { SendMessageCommand.class, SendEmptyMessageCommand.class, SendMultipleMessagesCommand.class },
-        mixinStandardHelpOptions = true, versionProvider = ManifestVersionProvider.class)
-public class TcpClientMenu {
+public final class InboundToListenerTransactionHandler implements BiConsumer<ChannelHandlerContext, String> {
 
     /**
-     * Default constructor.
+     * Transaction listener. Reacts to events during the request.
      */
-    public TcpClientMenu() {
+    private final TransactionListener listener;
+
+    public InboundToListenerTransactionHandler(final TransactionListener lst) {
         super();
+
+        listener = Objects.requireNonNull(lst);
+    }
+
+    @Override
+    public void accept(final ChannelHandlerContext ctx, final String response) {
+        listener.onReceive(response);
     }
 
 }
