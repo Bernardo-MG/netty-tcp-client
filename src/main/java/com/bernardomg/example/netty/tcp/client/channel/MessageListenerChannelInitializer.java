@@ -31,6 +31,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -71,6 +72,7 @@ public final class MessageListenerChannelInitializer extends ChannelInitializer<
 
         channel.pipeline()
             // Transforms message into a string
+            .addLast("encoder", new StringEncoder())
             .addLast("decoder", new StringDecoder())
             // Adds event logger
             .addLast(new EventLoggerChannelHandler())
