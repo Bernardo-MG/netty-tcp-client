@@ -49,7 +49,7 @@ public final class InboundToListenerTransactionHandler implements BiConsumer<Cha
     }
 
     @Override
-    public void accept(final ChannelHandlerContext ctx, final String response) {
+    public final void accept(final ChannelHandlerContext ctx, final String response) {
         listener.onReceive(response);
     }
 
