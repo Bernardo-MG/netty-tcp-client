@@ -52,10 +52,10 @@ public final class MessageListenerChannelHandler extends SimpleChannelInboundHan
      * @param lstn
      *            listener to watch for channel messages
      */
-    public MessageListenerChannelHandler(final TransactionListener lst) {
+    public MessageListenerChannelHandler(final TransactionListener lstn) {
         super();
 
-        listener = Objects.requireNonNull(lst);
+        listener = Objects.requireNonNull(lstn);
     }
 
     @Override
