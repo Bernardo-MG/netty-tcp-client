@@ -120,7 +120,6 @@ public final class NettyTcpClient implements Client {
             // Configuration
             .option(ChannelOption.SO_KEEPALIVE, true)
             // Sets channel initializer which listens for responses
-            // TODO: Simplify this
             .handler(new MessageListenerChannelInitializer(listener));
 
         try {
