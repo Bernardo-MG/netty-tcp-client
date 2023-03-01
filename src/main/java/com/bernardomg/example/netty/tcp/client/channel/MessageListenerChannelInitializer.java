@@ -24,10 +24,9 @@
 
 package com.bernardomg.example.netty.tcp.client.channel;
 
-import java.util.Objects;
-import java.util.function.BiConsumer;
+import com.bernardomg.example.netty.tcp.client.TransactionListener;
 
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
@@ -35,46 +34,44 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LoggingHandler;
 
 /**
- * Initializes the channel with a message listener. Any message received by the channel will be sent to the listener.
+ * Initializes the channel with handlers for listening to transactions.
+ * <p>
+ * It takes care of:
+ * <ul>
+ * <li>Encoding/decoding messages to/from string</li>
+ * <li>Activating Netty logging</li>
+ * <li>Adding a {@link MessageListenerChannelHandler}</li>
+ * </ul>
  *
  * @author Bernardo Mart&iacute;nez Garrido
  *
  */
 public final class MessageListenerChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    /**
-     * Message listener. This will receive any response from the channel.
-     */
-    private final BiConsumer<ChannelHandlerContext, String> listener;
+    private final ChannelHandler channelHandler;
 
     /**
      * Constructs a channel initializer with the received listener.
      *
      * @param listnr
-     *            listener for the channel messages
+     *            transaction listener
      */
-    public MessageListenerChannelInitializer(final BiConsumer<ChannelHandlerContext, String> listnr) {
+    public MessageListenerChannelInitializer(final TransactionListener listnr) {
         super();
 
-        listener = Objects.requireNonNull(listnr);
+        channelHandler = new MessageListenerChannelHandler(listnr);
     }
 
     @Override
     protected final void initChannel(final SocketChannel channel) throws Exception {
-        final MessageListenerChannelHandler listenerHandler;
-
-        // Message listener handler
-        // Sends any message received by the channel to the listener
-        listenerHandler = new MessageListenerChannelHandler(listener);
-
         channel.pipeline()
             // Transforms message into a string
             .addLast("encoder", new StringEncoder())
             .addLast("decoder", new StringDecoder())
             // Logging handler
             .addLast(new LoggingHandler())
-            // Adds listener handler
-            .addLast(listenerHandler);
+            // Sends any message received by the channel to the listener
+            .addLast(channelHandler);
     }
 
 }

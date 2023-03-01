@@ -25,7 +25,8 @@
 package com.bernardomg.example.netty.tcp.client.channel;
 
 import java.util.Objects;
-import java.util.function.BiConsumer;
+
+import com.bernardomg.example.netty.tcp.client.TransactionListener;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -41,9 +42,9 @@ import lombok.extern.slf4j.Slf4j;
 public final class MessageListenerChannelHandler extends SimpleChannelInboundHandler<String> {
 
     /**
-     * Channel listener. This will receive any message from the channel.
+     * Transaction listener. Reacts to events during the request.
      */
-    private final BiConsumer<ChannelHandlerContext, String> listener;
+    private final TransactionListener listener;
 
     /**
      * Constructs a channel handler which will send any message to the listener.
@@ -51,17 +52,17 @@ public final class MessageListenerChannelHandler extends SimpleChannelInboundHan
      * @param lstn
      *            listener to watch for channel messages
      */
-    public MessageListenerChannelHandler(final BiConsumer<ChannelHandlerContext, String> lstn) {
+    public MessageListenerChannelHandler(final TransactionListener lst) {
         super();
 
-        listener = Objects.requireNonNull(lstn);
+        listener = Objects.requireNonNull(lst);
     }
 
     @Override
     public final void channelRead0(final ChannelHandlerContext ctx, final String message) throws Exception {
         log.debug("Received message {}", message);
 
-        listener.accept(ctx, message);
+        listener.onReceive(message);
     }
 
 }

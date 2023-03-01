@@ -121,7 +121,7 @@ public final class NettyTcpClient implements Client {
             .option(ChannelOption.SO_KEEPALIVE, true)
             // Sets channel initializer which listens for responses
             // TODO: Simplify this
-            .handler(new MessageListenerChannelInitializer(new InboundToListenerTransactionHandler(listener)));
+            .handler(new MessageListenerChannelInitializer(listener));
 
         try {
             log.debug("Connecting to {}:{}", host, port);
