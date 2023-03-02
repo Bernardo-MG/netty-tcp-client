@@ -130,6 +130,7 @@ public final class SendMessageCommand implements Runnable {
         // Create client
         listener = new CliWriterTransactionListener(host, port, writer);
         client = new NettyTcpClient(host, port, listener);
+
         client.connect();
 
         // Send message
@@ -148,7 +149,7 @@ public final class SendMessageCommand implements Runnable {
         writer.println("finished waiting");
         log.debug("Finished waiting for responses");
 
-        // close client
+        // Close client
         client.close();
 
         // Close writer
