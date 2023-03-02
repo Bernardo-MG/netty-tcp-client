@@ -29,6 +29,9 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+
 import com.bernardomg.example.netty.tcp.cli.CliWriterTransactionListener;
 import com.bernardomg.example.netty.tcp.cli.version.ManifestVersionProvider;
 import com.bernardomg.example.netty.tcp.client.Client;
@@ -53,6 +56,12 @@ import picocli.CommandLine.Spec;
         versionProvider = ManifestVersionProvider.class)
 @Slf4j
 public final class SendMessageCommand implements Runnable {
+
+    /**
+     * Debug flag. Shows debug logs.
+     */
+    @Option(names = { "--debug" }, paramLabel = "flag", description = "Enable debug logs.", defaultValue = "false")
+    private Boolean     debug;
 
     /**
      * Server host.
@@ -105,6 +114,10 @@ public final class SendMessageCommand implements Runnable {
         final Client              client;
         final TransactionListener listener;
 
+        if (debug) {
+            activateDebugLog();
+        }
+
         if (verbose) {
             // Prints to console
             writer = spec.commandLine()
@@ -140,6 +153,14 @@ public final class SendMessageCommand implements Runnable {
 
         // Close writer
         writer.close();
+    }
+
+    /**
+     * Activates debug logs for the application.
+     */
+    private final void activateDebugLog() {
+        Configurator.setLevel("com.bernardomg.example", Level.DEBUG);
+        Configurator.setLevel("io.netty.handler.logging", Level.DEBUG);
     }
 
 }
