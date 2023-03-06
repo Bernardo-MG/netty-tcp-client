@@ -33,7 +33,6 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -50,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 public final class NettyTcpClient implements Client {
 
     /**
-     * Future for the main channel. Allows sending messages and reacting to responses.
+     * Main channel. For sending messages and reacting to responses.
      */
     private Channel                   channel;
 
@@ -75,7 +74,7 @@ public final class NettyTcpClient implements Client {
     private final Integer             port;
 
     /**
-     * Builds a client for the received host. The transaction listener will react to events when calling the server.
+     * Constructs a client for the received host. The transaction listener will react to events when calling the server.
      *
      * @param hst
      *            host for the client to connect
@@ -94,11 +93,13 @@ public final class NettyTcpClient implements Client {
 
     @Override
     public final void close() {
-        log.debug("Closing connection");
+        log.trace("Stopping client");
 
         listener.onStop();
 
         eventLoopGroup.shutdownGracefully();
+
+        log.trace("Stopped client");
     }
 
     @Override
@@ -106,7 +107,7 @@ public final class NettyTcpClient implements Client {
         final Bootstrap     bootstrap;
         final ChannelFuture channelFuture;
 
-        log.debug("Starting connection");
+        log.trace("Starting client");
 
         listener.onStart();
 
@@ -119,7 +120,7 @@ public final class NettyTcpClient implements Client {
             // Configuration
             .option(ChannelOption.SO_KEEPALIVE, true)
             // Sets channel initializer which listens for responses
-            .handler(new MessageListenerChannelInitializer(this::handleResponse));
+            .handler(new MessageListenerChannelInitializer(listener));
 
         try {
             log.debug("Connecting to {}:{}", host, port);
@@ -130,11 +131,9 @@ public final class NettyTcpClient implements Client {
             throw new RuntimeException(e);
         }
 
-        if (channelFuture.isSuccess()) {
-            log.debug("Connected correctly to {}:{}", host, port);
-        }
-
         channel = channelFuture.channel();
+
+        log.trace("Started client");
     }
 
     @Override
@@ -145,44 +144,26 @@ public final class NettyTcpClient implements Client {
         channel.writeAndFlush(Unpooled.EMPTY_BUFFER)
             .addListener(future -> {
                 if (future.isSuccess()) {
-                    log.debug("Successful request future");
                     listener.onSend("");
                 } else {
-                    log.debug("Failed request future");
+                    log.error("Request failed");
                 }
             });
-
-        log.debug("Sent message");
     }
 
     @Override
     public final void request(final String message) {
-        log.debug("Sending message {}", message);
+        log.debug("Sending {}", message);
 
         // send message to server
         channel.writeAndFlush(Unpooled.wrappedBuffer(message.getBytes(Charset.defaultCharset())))
             .addListener(future -> {
                 if (future.isSuccess()) {
-                    log.debug("Successful request future");
                     listener.onSend(message);
                 } else {
-                    log.debug("Failed request future");
+                    log.error("Request failed");
                 }
             });
-
-        log.debug("Sent message");
-    }
-
-    /**
-     * Channel response event listener. Will receive any response sent by the server.
-     *
-     * @param ctx
-     *            channel context
-     * @param resp
-     *            response received
-     */
-    private final void handleResponse(final ChannelHandlerContext ctx, final String resp) {
-        listener.onReceive(resp);
     }
 
 }

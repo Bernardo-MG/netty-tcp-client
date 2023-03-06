@@ -18,9 +18,20 @@
                 Using generic version provider.
             </action>
         </release>
-        <release version="1.0.2" date="2023-02-24" description="Non-blocking requests">
+        <release version="1.0.2" date="2023-02-24" description="Empty message and non blocking requests">
+            <action dev="bmg" type="add">
+                Added empty message command.
+            </action>
             <action dev="bmg" type="update">
                 Using waiter instead of blocking until a response arrives.
+            </action>
+        </release>
+        <release version="1.0.3" date="2023-03-06" description="Using Netty logging">
+            <action dev="bmg" type="add">
+                Using Netty logging.
+            </action>
+            <action dev="bmg" type="update">
+                Cleaned up code.
             </action>
         </release>
     </body>

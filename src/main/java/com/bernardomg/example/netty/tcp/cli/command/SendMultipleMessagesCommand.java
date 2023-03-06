@@ -47,15 +47,15 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 /**
- * Send empty message command. Will send an empty message to the server through TCP.
+ * Send multiple messages command. Will send multiple messages to the server through TCP.
  *
  * @author Bernardo Mart&iacute;nez Garrido
  *
  */
-@Command(name = "empty", description = "Sends an empty TCP message", mixinStandardHelpOptions = true,
+@Command(name = "multiple", description = "Sends multiple TCP messages", mixinStandardHelpOptions = true,
         versionProvider = ManifestVersionProvider.class)
 @Slf4j
-public final class SendEmptyMessageCommand implements Runnable {
+public final class SendMultipleMessagesCommand implements Runnable {
 
     /**
      * Debug flag. Shows debug logs.
@@ -98,7 +98,7 @@ public final class SendEmptyMessageCommand implements Runnable {
     /**
      * Default constructor.
      */
-    public SendEmptyMessageCommand() {
+    public SendMultipleMessagesCommand() {
         super();
     }
 
@@ -127,8 +127,12 @@ public final class SendEmptyMessageCommand implements Runnable {
 
         client.connect();
 
-        // Send message
-        client.request();
+        // Send messages
+        client.request("Message 1");
+        for (Integer i = 2; i <= 5; i++) {
+            waitOneSec();
+            client.request(String.format("Message %d", i));
+        }
 
         // Give time to the server for responses
         log.debug("Waiting {} seconds for responses", wait);
@@ -156,6 +160,18 @@ public final class SendEmptyMessageCommand implements Runnable {
     private final void activateDebugLog() {
         Configurator.setLevel("com.bernardomg.example", Level.DEBUG);
         Configurator.setLevel("io.netty.handler.logging", Level.DEBUG);
+    }
+
+    /**
+     * Wait for one second.
+     */
+    private final void waitOneSec() {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (final InterruptedException e) {
+            log.error(e.getLocalizedMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
 }
