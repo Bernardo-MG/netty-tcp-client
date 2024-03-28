@@ -6,7 +6,7 @@
     </properties>
     <body>
         <release version="1.0.0" date="2023-02-16" description="First release">
-            <action dev="bmg" type="update">
+            <action dev="bmg" type="add">
                 First release of the example.
             </action>
         </release>
@@ -32,6 +32,14 @@
             </action>
             <action dev="bmg" type="add">
                 Added debug option.
+            </action>
+            <action dev="bmg" type="update">
+                Cleaned up code.
+            </action>
+        </release>
+        <release version="1.0.4" date="2024-03-28" description="Updated dependencies">
+            <action dev="bmg" type="update">
+                Updated dependencies.
             </action>
             <action dev="bmg" type="update">
                 Cleaned up code.
