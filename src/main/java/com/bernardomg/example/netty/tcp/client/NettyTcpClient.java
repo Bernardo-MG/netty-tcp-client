@@ -137,21 +137,6 @@ public final class NettyTcpClient implements Client {
     }
 
     @Override
-    public final void request() {
-        log.debug("Sending empty message");
-
-        // send message to server
-        channel.writeAndFlush(Unpooled.EMPTY_BUFFER)
-            .addListener(future -> {
-                if (future.isSuccess()) {
-                    listener.onSend("");
-                } else {
-                    log.error("Request failed");
-                }
-            });
-    }
-
-    @Override
     public final void request(final String message) {
         log.debug("Sending {}", message);
 
